@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoOperacion {
+  VENTA
+  ALQUILER
+  ANTICRETICO
+}
+
+enum TipoInmueble {
+  CASA
+  DEPARTAMENTO
+  GARZONIER
+  TERRENO
+  LOCAL
+  OTRO
+}
+
+enum Rol {
+  SUPER_ADMIN
+  AGENTE
+  COORDINADOR
+}
+
+model Propiedad {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  titulo       String
+  descripcion  String
+  tipo         TipoOperacion
+  tipoInmueble TipoInmueble
+  precio       Decimal
+  moneda       String        @default("BOB")
+  ciudad       String
+  zona         String?
+  direccion    String?
+  dormitorios  Int?
+  banos        Int?
+  superficieM2 Decimal?
+  garage       Boolean       @default(false)
+  amueblado    Boolean       @default(false)
+  piscina      Boolean       @default(false)
+  fotos        Foto[]
+  agenteId     String
+  agente       Agente        @relation(fields: [agenteId], references: [id])
+  destacada    Boolean       @default(false)
+  activa       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Agente {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  nombre      String
+  apellido    String
+  email       String      @unique
+  telefono    String
+  whatsapp    String
+  foto        String?
+  bio         String?
+  activo      Boolean     @default(true)
+  propiedades Propiedad[]
+  user        User?
+}
+
+model Foto {
+  id          String    @id @default(cuid())
+  url         String
+  urlThumb    String
+  orden       Int       @default(0)
+  propiedadId String
+  propiedad   Propiedad @relation(fields: [propiedadId], references: [id])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  rol       Rol
+  agenteId  String?  @unique
+  agente    Agente?  @relation(fields: [agenteId], references: [id])
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Testimonio {
+  id     String        @id @default(cuid())
+  nombre String
+  ciudad String
+  texto  String
+  rating Int           @default(5)
+  tipo   TipoOperacion
+  foto   String?
+  activo Boolean       @default(true)
+}
