@@ -25,8 +25,7 @@ export function HeroSection() {
           loop
           muted
           playsInline
-          preload="none"
-          crossOrigin="anonymous"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src={VIDEO_URL} type="video/mp4" />

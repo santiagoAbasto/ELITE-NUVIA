@@ -110,7 +110,7 @@ export default function ServiciosPage() {
       </div>
 
       {/* Servicios */}
-      <div className="wrap py-24 pb-32 space-y-8">
+      <div className="wrap space-y-8" style={{ paddingTop: '96px', paddingBottom: '128px' }}>
         {SERVICIOS.map((svc, i) => (
           <motion.div
             key={svc.tipo}
