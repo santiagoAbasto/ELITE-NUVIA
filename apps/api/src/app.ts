@@ -2,6 +2,9 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { errorHandler } from './middleware/errorHandler.js'
+import { propiedadesRouter } from './routes/propiedades.js'
+import { agentesRouter } from './routes/agentes.js'
+import { testimoniosRouter } from './routes/testimonios.js'
 
 export function createApp() {
   const app = express()
@@ -18,6 +21,10 @@ export function createApp() {
   app.get('/api/v1/health', (_req, res) => {
     res.json({ status: 'ok', ts: new Date().toISOString() })
   })
+
+  app.use('/api/v1/propiedades', propiedadesRouter)
+  app.use('/api/v1/agentes', agentesRouter)
+  app.use('/api/v1/testimonios', testimoniosRouter)
 
   app.use(errorHandler)
   return app
