@@ -5,8 +5,8 @@ import { AnimatedHeading } from '../ui/AnimatedHeading'
 import { FadeIn } from '../ui/FadeIn'
 import { HeroTagCard } from './HeroTagCard'
 
-const VIDEO_URL = import.meta.env.VITE_HERO_VIDEO_URL
-  ?? 'https://d8j0ntlcm91z4.cloudfront.net/user_3E5NMv79RZNLljqH7GCxu0Z7pv1/hf_20260621_195349_603f7383-82f4-48d2-824d-c49a70f34f27.mp4'
+// Servido localmente desde /public/hero.mp4 — evita CORS del CDN externo
+const VIDEO_URL = '/hero.mp4'
 const WA_NUMBER = import.meta.env.VITE_WA_NUMBER ?? '59170000000'
 
 export function HeroSection() {
