@@ -1,4 +1,5 @@
 import { HeroSection } from '../components/home/HeroSection'
+import { SearchSection } from '../components/home/SearchSection'
 import { PropertiesSection } from '../components/home/PropertiesSection'
 import { ServicesSection } from '../components/home/ServicesSection'
 import { StatsSection } from '../components/home/StatsSection'
@@ -9,6 +10,7 @@ export default function HomePage() {
   return (
     <div>
       <HeroSection />
+      <SearchSection />
       <PropertiesSection />
       <ServicesSection />
       <StatsSection />

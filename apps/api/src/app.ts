@@ -5,6 +5,8 @@ import { errorHandler } from './middleware/errorHandler.js'
 import { propiedadesRouter } from './routes/propiedades.js'
 import { agentesRouter } from './routes/agentes.js'
 import { testimoniosRouter } from './routes/testimonios.js'
+import { authRouter } from './routes/auth.js'
+import { adminRouter } from './routes/admin.js'
 
 export function createApp() {
   const app = express()
@@ -12,7 +14,7 @@ export function createApp() {
   app.use(cors({
     origin: process.env.NODE_ENV === 'production'
       ? ['https://elitenuvia.bo']
-      : ['http://localhost:3000'],
+      : ['http://localhost:3000', 'http://localhost:4200'],
     credentials: true,
   }))
   app.use(express.json())
@@ -25,6 +27,8 @@ export function createApp() {
   app.use('/api/v1/propiedades', propiedadesRouter)
   app.use('/api/v1/agentes', agentesRouter)
   app.use('/api/v1/testimonios', testimoniosRouter)
+  app.use('/api/v1/auth', authRouter)
+  app.use('/api/v1/admin', adminRouter)
 
   app.use(errorHandler)
   return app
