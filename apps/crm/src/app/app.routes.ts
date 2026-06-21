@@ -12,13 +12,19 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
   },
   {
-    path: 'ELITE-CRM/ADMIN',
-    redirectTo: 'ELITE-CRM/ADMIN/login',
-    pathMatch: 'full',
+    path: 'ELITE-CRM/ADMIN/propiedades',
+    canActivate: [authGuard],
+    loadComponent: () => import('./propiedades/propiedades-list.component').then(m => m.PropiedadesListComponent),
   },
   {
-    path: '',
-    redirectTo: 'ELITE-CRM/ADMIN/login',
+    path: 'ELITE-CRM/ADMIN/leads',
+    canActivate: [authGuard],
+    loadComponent: () => import('./leads/leads-list.component').then(m => m.LeadsListComponent),
+  },
+  {
+    path: 'ELITE-CRM/ADMIN',
+    redirectTo: 'ELITE-CRM/ADMIN/dashboard',
     pathMatch: 'full',
   },
+  { path: '', redirectTo: 'ELITE-CRM/ADMIN/login', pathMatch: 'full' },
 ]

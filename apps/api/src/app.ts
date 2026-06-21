@@ -7,6 +7,8 @@ import { agentesRouter } from './routes/agentes.js'
 import { testimoniosRouter } from './routes/testimonios.js'
 import { authRouter } from './routes/auth.js'
 import { adminRouter } from './routes/admin.js'
+import { leadsRouter } from './routes/leads.js'
+import { sitemapRouter } from './routes/sitemap.js'
 
 export function createApp() {
   const app = express()
@@ -29,6 +31,8 @@ export function createApp() {
   app.use('/api/v1/testimonios', testimoniosRouter)
   app.use('/api/v1/auth', authRouter)
   app.use('/api/v1/admin', adminRouter)
+  app.use('/api/v1/leads', leadsRouter)
+  app.use('/', sitemapRouter)
 
   app.use(errorHandler)
   return app
