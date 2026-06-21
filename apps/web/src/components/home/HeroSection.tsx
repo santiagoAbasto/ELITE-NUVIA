@@ -30,37 +30,48 @@ export function HeroSection() {
   return (
     <section ref={ref} className="relative min-h-screen flex flex-col justify-end overflow-hidden" style={{ background: '#071510' }}>
       <motion.div className="absolute inset-0" style={{ scale: videoScale, opacity: videoOpacity }}>
-        <video
-          ref={videoRef}
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectFit: 'cover' }}
-        >
-          <source src={VIDEO_URL} type="video/mp4" />
-          <source src={VIDEO_URL} type="video/webm" />
-        </video>
-        {/* Fallback gradient — siempre visible, más intenso */}
+        {/* 1. Gradiente de fondo — detrás del video (z-index 0) */}
         <div
           className="absolute inset-0"
           style={{
+            zIndex: 0,
             background: [
-              'radial-gradient(ellipse 90% 70% at 25% 35%, rgba(13,59,39,0.9) 0%, transparent 55%)',
-              'radial-gradient(ellipse 70% 80% at 80% 65%, rgba(10,36,22,0.85) 0%, transparent 55%)',
+              'radial-gradient(ellipse 90% 70% at 25% 35%, rgba(13,59,39,0.95) 0%, transparent 55%)',
+              'radial-gradient(ellipse 70% 80% at 80% 65%, rgba(10,36,22,0.9) 0%, transparent 55%)',
               'linear-gradient(160deg, #071510 0%, #0D3B27 35%, #091e0f 65%, #050d07 100%)',
             ].join(', '),
           }}
         />
+        {/* 2. Video — ENCIMA del gradiente (z-index 1), tapa el gradiente cuando carga */}
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full"
+          style={{ objectFit: 'cover', zIndex: 1 }}
+        >
+          <source src={VIDEO_URL} type="video/mp4" />
+        </video>
+        {/* 3. Overlay de color muy sutil sobre el video (z-index 2) — mantiene coherencia de marca */}
+        <div
+          className="absolute inset-0"
+          style={{
+            zIndex: 2,
+            background: 'linear-gradient(160deg, rgba(7,21,16,0.35) 0%, rgba(0,0,0,0.1) 50%, rgba(5,13,7,0.3) 100%)',
+          }}
+        />
       </motion.div>
 
+      {/* 4. Fade bottom — para legibilidad del texto */}
       <div
         className="absolute bottom-0 left-0 right-0 h-[55%] pointer-events-none"
-        style={{ background: 'linear-gradient(0deg, rgba(8,14,9,0.85) 0%, transparent 100%)' }}
+        style={{ zIndex: 3, background: 'linear-gradient(0deg, rgba(8,14,9,0.88) 0%, transparent 100%)' }}
       />
 
-      <motion.div className="relative z-10 pb-14" style={{ y: contentY }}>
+      <motion.div className="relative pb-14" style={{ y: contentY, zIndex: 10 }}>
         <div className="wrap">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 items-end">
             <div>
