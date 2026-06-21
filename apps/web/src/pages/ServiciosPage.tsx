@@ -164,7 +164,7 @@ export default function ServiciosPage() {
       <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)' }} />
 
       {/* CTA bottom */}
-      <div className="border-t border-white/05" style={{ background: '#060e08' }}>
+      <div style={{ background: '#060e08' }}>
         <div className="wrap py-24 text-center">
           <h2 className="text-[26px] font-bold text-white mb-2" style={{ letterSpacing: '-0.02em' }}>
             ¿No sabes que opcion es mejor para ti?

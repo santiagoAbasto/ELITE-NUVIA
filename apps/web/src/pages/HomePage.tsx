@@ -8,16 +8,9 @@ import { AgentsSection } from '../components/home/AgentsSection'
 import { TestimonialsSection } from '../components/home/TestimonialsSection'
 import { NewsletterSection } from '../components/home/NewsletterSection'
 
-function Divider() {
-  return (
-    <div
-      style={{
-        height: '1px',
-        background: 'linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.12) 30%, rgba(201,168,76,0.18) 50%, rgba(201,168,76,0.12) 70%, transparent 100%)',
-        margin: '0',
-      }}
-    />
-  )
+// Separador invisible: sólo espacio y fondo unificado, sin línea visible
+function Spacer({ size = 96 }: { size?: number }) {
+  return <div style={{ height: `${size}px`, background: '#080e09' }} />
 }
 
 export default function HomePage() {
@@ -26,21 +19,15 @@ export default function HomePage() {
       <HeroSection />
       <ScrollShowcase />
       <SearchSection />
-      <Divider />
-      <div style={{ height: '80px', background: '#080e09' }} />
+      <Spacer size={96} />
       <PropertiesSection />
-      <div style={{ height: '80px', background: '#080e09' }} />
-      <Divider />
+      <Spacer size={96} />
       <ServicesSection />
-      <Divider />
       <StatsSection />
-      <Divider />
-      <div style={{ height: '40px', background: '#080e09' }} />
+      <Spacer size={40} />
       <AgentsSection />
-      <div style={{ height: '40px', background: '#080e09' }} />
-      <Divider />
+      <Spacer size={40} />
       <TestimonialsSection />
-      <Divider />
       <NewsletterSection />
     </div>
   )

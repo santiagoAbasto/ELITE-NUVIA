@@ -190,7 +190,7 @@ export default function PropiedadesPage() {
       </div>
 
       {/* Grid */}
-      <div className="wrap py-12 pb-24">
+      <div className="wrap pb-24" style={{ paddingTop: '40px' }}>
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[22px]">
             {Array.from({ length: 6 }).map((_, i) => (

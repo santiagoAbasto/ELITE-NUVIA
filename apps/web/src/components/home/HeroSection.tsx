@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { AnimatedHeading } from '../ui/AnimatedHeading'
@@ -11,7 +11,17 @@ const WA_NUMBER = import.meta.env.VITE_WA_NUMBER ?? '59170000000'
 
 export function HeroSection() {
   const ref = useRef<HTMLElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const { scrollY } = useScroll()
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    video.muted = true
+    video.play().catch(() => {
+      // Autoplay bloqueado — el gradiente fallback es visible
+    })
+  }, [])
   const videoScale = useTransform(scrollY, [0, 500], [1, 1.08])
   const videoOpacity = useTransform(scrollY, [0, 400], [1, 0.3])
   const contentY = useTransform(scrollY, [0, 300], [0, -60])
@@ -21,14 +31,16 @@ export function HeroSection() {
     <section ref={ref} className="relative min-h-screen flex flex-col justify-end overflow-hidden" style={{ background: '#071510' }}>
       <motion.div className="absolute inset-0" style={{ scale: videoScale, opacity: videoOpacity }}>
         <video
-          autoPlay
+          ref={videoRef}
           loop
           muted
           playsInline
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectFit: 'cover' }}
         >
           <source src={VIDEO_URL} type="video/mp4" />
+          <source src={VIDEO_URL} type="video/webm" />
         </video>
         {/* Fallback gradient — siempre visible, más intenso */}
         <div
