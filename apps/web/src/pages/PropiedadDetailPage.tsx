@@ -41,10 +41,10 @@ export default function PropiedadDetailPage() {
         style={{ background: '#080e09' }}
       >
         <div
-          className="w-20 h-20 rounded-2xl border border-white/08 flex items-center justify-center text-4xl"
+          className="w-20 h-20 rounded-2xl border border-white/[0.08] flex items-center justify-center"
           style={{ background: 'rgba(255,255,255,0.03)' }}
         >
-          🏠
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </div>
         <h1 className="text-white text-2xl font-bold">Propiedad no encontrada</h1>
         <p className="text-white/35 text-[14px]">Es posible que haya sido removida o el enlace sea incorrecto.</p>

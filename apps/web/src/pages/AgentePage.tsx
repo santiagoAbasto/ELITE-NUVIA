@@ -28,7 +28,9 @@ export default function AgentePage() {
 
   if (!agente) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: '#080e09' }}>
-      <div className="text-white/20 text-6xl">👤</div>
+      <div className="w-20 h-20 rounded-full border border-white/[0.08] flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.02)' }}>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
       <h1 className="text-white text-2xl font-bold">Agente no encontrado</h1>
       <Link to="/nosotros" className="text-gold text-[13px] underline">Ver todos los agentes</Link>
     </div>
@@ -78,7 +80,8 @@ export default function AgentePage() {
                   href={`tel:${agente.telefono}`}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-[12.5px] border border-white/12 text-white/70 hover:bg-white/05 transition-colors"
                 >
-                  📞 {agente.telefono}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+                  {agente.telefono}
                 </a>
               </div>
             </div>

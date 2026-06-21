@@ -109,7 +109,9 @@ export function NewsletterSection() {
                 animate={{ scale: 1, opacity: 1 }}
                 className="bg-green-900/20 border border-green-500/25 rounded-2xl p-8"
               >
-                <div className="text-4xl mb-3">✅</div>
+                <div className="w-14 h-14 rounded-full bg-green-900/30 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
                 <div className="text-white font-bold text-lg mb-1">¡Listo!</div>
                 <div className="text-white/55 text-[13px]">{message}</div>
               </motion.div>
@@ -173,12 +175,21 @@ export function NewsletterSection() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             {[
-              { icon: '🏠', text: '+500 propiedades' },
-              { icon: '📍', text: '4 ciudades' },
-              { icon: '✉️', text: 'Sin spam' },
+              {
+                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+                text: '+500 propiedades',
+              },
+              {
+                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+                text: '4 ciudades',
+              },
+              {
+                icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+                text: 'Sin spam',
+              },
             ].map(b => (
               <div key={b.text} className="flex items-center gap-2 text-white/30 text-[12px]">
-                <span>{b.icon}</span>
+                <span className="text-white/20">{b.icon}</span>
                 <span>{b.text}</span>
               </div>
             ))}

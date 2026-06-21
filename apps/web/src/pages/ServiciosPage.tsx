@@ -1,10 +1,41 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
-const SERVICIOS = [
+const IconHome = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+    <polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+)
+
+const IconKey = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="7.5" cy="15.5" r="5.5"/>
+    <path d="M21 2l-9.6 9.6M15.5 7.5l3 3"/>
+  </svg>
+)
+
+const IconHandshake = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/>
+  </svg>
+)
+
+const SERVICIOS: {
+  num: string
+  icon: ReactNode
+  tipo: string
+  titulo: string
+  descripcion: string
+  puntos: string[]
+  href: string
+  cta: string
+  featured: boolean
+}[] = [
   {
     num: '01',
-    icon: '🏠',
+    icon: <IconHome />,
     tipo: 'VENTA',
     titulo: 'Venta de Propiedades',
     descripcion: 'Vendemos tu propiedad al mejor precio del mercado boliviano con valuacion gratuita, fotografia profesional y publicacion en todas las plataformas. Te acompanamos hasta la firma del minuto de transferencia.',
@@ -22,7 +53,7 @@ const SERVICIOS = [
   },
   {
     num: '02',
-    icon: '🗝️',
+    icon: <IconKey />,
     tipo: 'ALQUILER',
     titulo: 'Alquiler',
     descripcion: 'Conectamos propietarios con inquilinos verificados y responsables. Gestionamos contratos, garantias, inventarios y seguimiento mensual completo para ambas partes.',
@@ -40,7 +71,7 @@ const SERVICIOS = [
   },
   {
     num: '03',
-    icon: '🤝',
+    icon: <IconHandshake />,
     tipo: 'ANTICRETICO',
     titulo: 'Anticretico',
     descripcion: 'La modalidad exclusiva de Bolivia. Deposita un monto al propietario y vive en la propiedad por el tiempo pactado sin pagar renta mensual. Al terminar el contrato, recuperas el 100% de tu inversion.',
@@ -79,7 +110,7 @@ export default function ServiciosPage() {
       </div>
 
       {/* Servicios */}
-      <div className="wrap py-20 pb-24 space-y-6">
+      <div className="wrap py-24 pb-32 space-y-8">
         {SERVICIOS.map((svc, i) => (
           <motion.div
             key={svc.tipo}
@@ -95,7 +126,7 @@ export default function ServiciosPage() {
           >
             <div>
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-[14px] border border-gold/20 bg-gold/08 flex items-center justify-center text-2xl flex-shrink-0">
+                <div className="w-14 h-14 rounded-[14px] border border-gold/20 bg-gold/08 flex items-center justify-center flex-shrink-0 text-gold">
                   {svc.icon}
                 </div>
                 <div>
@@ -129,9 +160,12 @@ export default function ServiciosPage() {
         ))}
       </div>
 
+      {/* Separador */}
+      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)' }} />
+
       {/* CTA bottom */}
       <div className="border-t border-white/05" style={{ background: '#060e08' }}>
-        <div className="wrap py-16 text-center">
+        <div className="wrap py-24 text-center">
           <h2 className="text-[26px] font-bold text-white mb-2" style={{ letterSpacing: '-0.02em' }}>
             ¿No sabes que opcion es mejor para ti?
           </h2>

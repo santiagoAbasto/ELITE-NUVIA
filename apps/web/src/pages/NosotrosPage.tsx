@@ -1,13 +1,43 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AgentsSection } from '../components/home/AgentsSection'
 import { StatsSection } from '../components/home/StatsSection'
 
-const VALORES = [
-  { icon: '🎯', titulo: 'Excelencia', desc: 'Cada propiedad que gestionamos recibe atencion profesional de primer nivel. No trabajamos con cantidad, trabajamos con calidad.' },
-  { icon: '🤝', titulo: 'Confianza', desc: 'Transparencia absoluta en cada paso del proceso. Sin sorpresas, sin letras pequeñas, sin costos ocultos.' },
-  { icon: '💎', titulo: 'Calidad', desc: 'Solo representamos propiedades verificadas que cumplen nuestros estandares. Cada ficha es precisa y actualizada.' },
-  { icon: '📍', titulo: 'Conocimiento local', desc: 'Mas de 8 anos en el mercado boliviano. Conocemos cada zona, cada precio y cada oportunidad en 4 ciudades.' },
+const IconTarget = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <circle cx="12" cy="12" r="6"/>
+    <circle cx="12" cy="12" r="2"/>
+  </svg>
+)
+
+const IconHandshake = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/>
+  </svg>
+)
+
+const IconDiamond = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/>
+    <line x1="2" y1="8.5" x2="22" y2="8.5"/>
+    <polyline points="12 2 7 8.5 12 22 17 8.5 12 2"/>
+  </svg>
+)
+
+const IconMapPin = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+    <circle cx="12" cy="10" r="3"/>
+  </svg>
+)
+
+const VALORES: { icon: ReactNode; titulo: string; desc: string }[] = [
+  { icon: <IconTarget />, titulo: 'Excelencia', desc: 'Cada propiedad que gestionamos recibe atencion profesional de primer nivel. No trabajamos con cantidad, trabajamos con calidad.' },
+  { icon: <IconHandshake />, titulo: 'Confianza', desc: 'Transparencia absoluta en cada paso del proceso. Sin sorpresas, sin letras pequeñas, sin costos ocultos.' },
+  { icon: <IconDiamond />, titulo: 'Calidad', desc: 'Solo representamos propiedades verificadas que cumplen nuestros estandares. Cada ficha es precisa y actualizada.' },
+  { icon: <IconMapPin />, titulo: 'Conocimiento local', desc: 'Mas de 8 anos en el mercado boliviano. Conocemos cada zona, cada precio y cada oportunidad en 4 ciudades.' },
 ]
 
 const HITOS = [
@@ -58,7 +88,9 @@ export default function NosotrosPage() {
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.45, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="w-11 h-11 rounded-xl bg-gold/08 border border-gold/15 flex items-center justify-center text-xl mb-4">{v.icon}</div>
+              <div className="w-11 h-11 rounded-xl bg-gold/08 border border-gold/15 flex items-center justify-center mb-4 text-gold">
+                {v.icon}
+              </div>
               <h3 className="text-white font-bold text-[17px] mb-2">{v.titulo}</h3>
               <p className="text-white/40 text-[13px] leading-relaxed">{v.desc}</p>
             </motion.div>

@@ -1,31 +1,61 @@
+import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { ParticlesCanvas } from './ParticlesCanvas'
 import { SectionEyebrow } from '../ui/SectionEyebrow'
 import { FadeInView } from '../ui/FadeIn'
 
-const SERVICES = [
+const IconHome = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+    <polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+)
+
+const IconKey = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="7.5" cy="15.5" r="5.5"/>
+    <path d="M21 2l-9.6 9.6M15.5 7.5l3 3"/>
+  </svg>
+)
+
+const IconHandshake = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/>
+  </svg>
+)
+
+const SERVICES: {
+  icon: ReactNode
+  name: string
+  title: string
+  desc: string
+  cta: string
+  href: string
+  featured: boolean
+  hint: string | undefined
+}[] = [
   {
-    icon: '🏠',
+    icon: <IconHome />,
     name: 'VENTA',
     title: 'Venta',
     desc: 'Vendemos tu propiedad al mejor precio del mercado. Valuacion gratuita, fotografia profesional y maxima exposicion digital en todas las plataformas.',
     cta: 'Ver propiedades en venta',
     href: '/propiedades?tipo=VENTA',
     featured: false,
-    hint: undefined as string | undefined,
+    hint: undefined,
   },
   {
-    icon: '🗝️',
+    icon: <IconKey />,
     name: 'ALQUILER',
     title: 'Alquiler',
     desc: 'Encuentra el inmueble perfecto o alquila el tuyo con respaldo total. Gestion de contratos, garantias y seguimiento mensual incluidos.',
     cta: 'Ver inmuebles en alquiler',
     href: '/propiedades?tipo=ALQUILER',
     featured: true,
-    hint: undefined as string | undefined,
+    hint: undefined,
   },
   {
-    icon: '🤝',
+    icon: <IconHandshake />,
     name: 'ANTICRETICO',
     title: 'Anticretico',
     desc: 'Modalidad exclusiva de Bolivia. Entrega un monto y vive en la propiedad por el tiempo acordado sin pagar renta mensual. Al finalizar, recuperas tu inversion.',
@@ -82,7 +112,7 @@ export function ServicesSection() {
                 className="absolute top-0 left-6 right-6 h-px"
                 style={{ background: 'linear-gradient(90deg, transparent, #C9A84C, transparent)' }}
               />
-              <div className="w-14 h-14 rounded-[14px] border border-gold/20 bg-gold/10 flex items-center justify-center text-2xl mb-6">
+              <div className="w-14 h-14 rounded-[14px] border border-gold/20 bg-gold/10 flex items-center justify-center mb-6 text-gold">
                 {svc.icon}
               </div>
               <div className="text-[11px] text-gold font-bold tracking-[3px] uppercase mb-2.5">{svc.name}</div>

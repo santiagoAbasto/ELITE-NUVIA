@@ -206,10 +206,12 @@ export default function PropiedadesPage() {
         ) : propiedades.length === 0 ? (
           <div className="text-center py-28">
             <div
-              className="w-16 h-16 rounded-2xl border border-white/08 flex items-center justify-center text-3xl mx-auto mb-6"
+              className="w-16 h-16 rounded-2xl border border-white/[0.08] flex items-center justify-center mx-auto mb-6"
               style={{ background: 'rgba(255,255,255,0.03)' }}
             >
-              🔍
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
             </div>
             <h2 className="text-white font-bold text-[22px] mb-2">Sin resultados</h2>
             <p className="text-white/40 text-[14px] mb-6 max-w-xs mx-auto">

@@ -5,7 +5,8 @@ import { AnimatedHeading } from '../ui/AnimatedHeading'
 import { FadeIn } from '../ui/FadeIn'
 import { HeroTagCard } from './HeroTagCard'
 
-const VIDEO_URL = import.meta.env.VITE_HERO_VIDEO_URL ?? ''
+const VIDEO_URL = import.meta.env.VITE_HERO_VIDEO_URL
+  ?? 'https://d8j0ntlcm91z4.cloudfront.net/user_3E5NMv79RZNLljqH7GCxu0Z7pv1/hf_20260621_195349_603f7383-82f4-48d2-824d-c49a70f34f27.mp4'
 const WA_NUMBER = import.meta.env.VITE_WA_NUMBER ?? '59170000000'
 
 export function HeroSection() {
@@ -17,25 +18,28 @@ export function HeroSection() {
   const scrollIndicatorOpacity = useTransform(scrollY, [0, 100], [1, 0])
 
   return (
-    <section ref={ref} className="relative min-h-screen flex flex-col justify-end overflow-hidden">
+    <section ref={ref} className="relative min-h-screen flex flex-col justify-end overflow-hidden" style={{ background: '#071510' }}>
       <motion.div className="absolute inset-0" style={{ scale: videoScale, opacity: videoOpacity }}>
-        {VIDEO_URL ? (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="none"
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src={VIDEO_URL} type="video/mp4" />
-          </video>
-        ) : null}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="none"
+          crossOrigin="anonymous"
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={VIDEO_URL} type="video/mp4" />
+        </video>
+        {/* Fallback gradient — siempre visible, más intenso */}
         <div
           className="absolute inset-0"
           style={{
-            background:
-              'radial-gradient(ellipse 80% 60% at 30% 40%, rgba(26,92,58,0.55) 0%, transparent 65%), radial-gradient(ellipse 60% 80% at 75% 70%, rgba(13,59,39,0.6) 0%, transparent 60%), linear-gradient(160deg, #091a0f 0%, #0D3B27 45%, #0a1e10 100%)',
+            background: [
+              'radial-gradient(ellipse 90% 70% at 25% 35%, rgba(13,59,39,0.9) 0%, transparent 55%)',
+              'radial-gradient(ellipse 70% 80% at 80% 65%, rgba(10,36,22,0.85) 0%, transparent 55%)',
+              'linear-gradient(160deg, #071510 0%, #0D3B27 35%, #091e0f 65%, #050d07 100%)',
+            ].join(', '),
           }}
         />
       </motion.div>

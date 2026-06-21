@@ -1,13 +1,53 @@
+import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 
 const WA_NUMBER = import.meta.env.VITE_WA_NUMBER ?? '59170000000'
 
-const CONTACT_INFO = [
-  { icon: '📞', label: 'Telefono', value: '+591 4 000 0000', href: 'tel:+59140000000' },
-  { icon: '📧', label: 'Email', value: 'info@elitenuvia.bo', href: 'mailto:info@elitenuvia.bo' },
-  { icon: '📍', label: 'Oficina principal', value: 'Cochabamba, Bolivia', href: null },
-  { icon: '🕐', label: 'Horario', value: 'Lun–Sab, 9:00–18:00', href: null },
+const IconPhone = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+  </svg>
+)
+
+const IconMail = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
+  </svg>
+)
+
+const IconMapPin = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+    <circle cx="12" cy="10" r="3"/>
+  </svg>
+)
+
+const IconClock = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </svg>
+)
+
+const IconShield = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+  </svg>
+)
+
+const IconCheck = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+)
+
+const CONTACT_INFO: { icon: ReactNode; label: string; value: string; href: string | null }[] = [
+  { icon: <IconPhone />, label: 'Telefono', value: '+591 4 000 0000', href: 'tel:+59140000000' },
+  { icon: <IconMail />, label: 'Email', value: 'info@elitenuvia.bo', href: 'mailto:info@elitenuvia.bo' },
+  { icon: <IconMapPin />, label: 'Oficina principal', value: 'Cochabamba, Bolivia', href: null },
+  { icon: <IconClock />, label: 'Horario', value: 'Lun–Sab, 9:00–18:00', href: null },
 ]
 
 const inputCls = 'w-full bg-white/04 border border-white/08 rounded-xl px-4 py-3.5 text-white text-[13.5px] placeholder-white/20 focus:outline-none focus:border-gold/40 focus:bg-white/06 transition-all'
@@ -67,7 +107,9 @@ export default function ContactoPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="rounded-2xl border border-green-500/15 bg-green-900/10 p-10 text-center"
               >
-                <div className="text-5xl mb-4">✅</div>
+                <div className="w-16 h-16 rounded-full bg-green-900/30 border border-green-500/20 flex items-center justify-center mx-auto mb-4 text-green-400">
+                  <IconCheck />
+                </div>
                 <h2 className="text-white font-bold text-xl mb-2">Consulta enviada</h2>
                 <p className="text-white/45 text-[14px] mb-6">Un asesor se comunicara contigo pronto.</p>
                 <button onClick={() => setSuccess(false)} className="text-gold text-[13px] underline">
@@ -128,7 +170,9 @@ export default function ContactoPage() {
               <div className="space-y-4">
                 {CONTACT_INFO.map(c => (
                   <div key={c.label} className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-gold/08 border border-gold/15 flex items-center justify-center flex-shrink-0 text-base">{c.icon}</div>
+                    <div className="w-9 h-9 rounded-xl bg-gold/08 border border-gold/15 flex items-center justify-center flex-shrink-0 text-gold">
+                      {c.icon}
+                    </div>
                     <div>
                       <div className="text-white/30 text-[10px] uppercase tracking-wider mb-0.5">{c.label}</div>
                       {c.href ? (
@@ -158,7 +202,9 @@ export default function ContactoPage() {
 
             {/* Badge confianza */}
             <div className="bg-white/02 border border-white/05 rounded-2xl p-5 text-center">
-              <div className="text-3xl mb-2">🔒</div>
+              <div className="w-12 h-12 rounded-full bg-gold/08 border border-gold/15 flex items-center justify-center mx-auto mb-3 text-gold">
+                <IconShield />
+              </div>
               <div className="text-white/50 text-[12.5px] leading-relaxed">
                 Tu informacion es privada y segura. Nunca compartimos tus datos con terceros.
               </div>
