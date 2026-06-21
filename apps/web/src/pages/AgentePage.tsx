@@ -37,7 +37,8 @@ export default function AgentePage() {
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
       {/* Header agente */}
-      <div className="pt-28 pb-16" style={{ background: 'linear-gradient(180deg, #0D3B27 0%, #080e09 100%)' }}>
+      <div className="relative pt-28 pb-16" style={{ background: 'linear-gradient(180deg, #0D3B27 0%, #080e09 100%)' }}>
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)' }} />
         <div className="wrap">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
             {/* Avatar */}

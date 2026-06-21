@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { api } from '../lib/api'
 import { PropertyCard } from '../components/home/PropertyCard'
+import { PageHeader } from '../components/ui/PageHeader'
 import type { PropiedadPublica, TipoOperacion, TipoInmueble } from '@elite/types'
 
 const TABS: { value: TipoOperacion | ''; label: string }[] = [
   { value: '', label: 'Todos' },
-  { value: 'VENTA', label: 'Venta' },
-  { value: 'ALQUILER', label: 'Alquiler' },
+  { value: 'VENTA', label: 'En Venta' },
+  { value: 'ALQUILER', label: 'En Alquiler' },
   { value: 'ANTICRETICO', label: 'Anticretico' },
 ]
 
@@ -23,7 +24,8 @@ const TIPOS: { value: TipoInmueble | ''; label: string }[] = [
 
 const CIUDADES = ['', 'Cochabamba', 'Santa Cruz', 'La Paz', 'Oruro']
 
-const selectCls = 'bg-white/06 border border-white/10 rounded-lg px-3.5 py-2.5 text-[13px] text-white focus:outline-none focus:ring-2 focus:ring-gold/30 appearance-none w-full'
+const selectCls =
+  'bg-white/[0.06] border border-white/10 rounded-lg px-3.5 py-2 text-[12.5px] text-white focus:outline-none focus:ring-2 focus:ring-gold/30 appearance-none cursor-pointer transition-all w-full'
 
 export default function PropiedadesPage() {
   const [params, setParams] = useSearchParams()
@@ -40,17 +42,21 @@ export default function PropiedadesPage() {
 
   useEffect(() => {
     setLoading(true)
-    api.propiedades.list({
-      tipo: tipo || undefined,
-      tipoInmueble: tipoInmueble || undefined,
-      ciudad: ciudad || undefined,
-      page,
-      pageSize: 12,
-    }).then(r => {
-      setPropiedades(r.data)
-      setTotal(r.total)
-      setTotalPages(r.totalPages)
-    }).finally(() => setLoading(false))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    api.propiedades
+      .list({
+        tipo: tipo || undefined,
+        tipoInmueble: tipoInmueble || undefined,
+        ciudad: ciudad || undefined,
+        page,
+        pageSize: 12,
+      })
+      .then(r => {
+        setPropiedades(r.data)
+        setTotal(r.total)
+        setTotalPages(r.totalPages)
+      })
+      .finally(() => setLoading(false))
   }, [tipo, tipoInmueble, ciudad, page])
 
   function setFilter(key: string, value: string) {
@@ -65,91 +71,176 @@ export default function PropiedadesPage() {
     const next = new URLSearchParams(params)
     next.set('page', String(p))
     setParams(next)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  const tipoLabel = TABS.find(t => t.value === tipo)?.label ?? 'Todos'
+  const headerTitle = tipo ? (
+    <>
+      Propiedades en{' '}
+      <em className="not-italic text-gold" style={{ fontFamily: "'Playfair Display', serif" }}>
+        {tipoLabel}
+      </em>
+    </>
+  ) : (
+    <>
+      Todas las{' '}
+      <em className="not-italic text-gold" style={{ fontFamily: "'Playfair Display', serif" }}>
+        Propiedades
+      </em>
+    </>
+  )
+
+  const metaText = loading
+    ? 'Buscando...'
+    : `${total} inmueble${total !== 1 ? 's' : ''} encontrado${total !== 1 ? 's' : ''}${ciudad ? ` en ${ciudad}` : ''}`
 
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
-      {/* Header */}
-      <div className="pt-28 pb-10" style={{ background: 'linear-gradient(180deg, #0D3B27 0%, #080e09 100%)' }}>
-        <div className="wrap">
-          <div className="text-gold text-[11px] font-bold tracking-[3px] uppercase mb-3">Inmuebles</div>
-          <h1 className="text-[40px] font-bold text-white mb-2" style={{ letterSpacing: '-0.02em' }}>
-            Propiedades
-          </h1>
-          <p className="text-white/45 text-[14px]">{total} inmuebles disponibles</p>
+      {/* Page header */}
+      <PageHeader eyebrow="Inmuebles" title={headerTitle} meta={metaText} />
+
+      {/* Sticky filter bar */}
+      <div
+        className="sticky z-40 border-b"
+        style={{
+          top: '68px',
+          background: 'rgba(8,14,9,0.92)',
+          backdropFilter: 'blur(16px)',
+          borderColor: 'rgba(201,168,76,0.08)',
+        }}
+      >
+        <div className="wrap py-3">
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
+            {/* Tabs tipo con LayoutGroup + pill animado */}
+            <LayoutGroup>
+              <div className="flex gap-1 bg-white/[0.04] border border-white/[0.06] rounded-xl p-1 flex-shrink-0">
+                {TABS.map(t => (
+                  <button
+                    key={t.value}
+                    onClick={() => setFilter('tipo', t.value)}
+                    className="relative px-4 py-1.5 rounded-lg text-[12px] font-semibold transition-colors"
+                    style={{
+                      color: tipo === t.value ? '#0A2416' : 'rgba(255,255,255,0.45)',
+                      zIndex: 1,
+                    }}
+                  >
+                    {tipo === t.value && (
+                      <motion.div
+                        layoutId="tipo-pill"
+                        className="absolute inset-0 rounded-lg"
+                        style={{ background: '#C9A84C' }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                      />
+                    )}
+                    <span className="relative z-10">{t.label}</span>
+                  </button>
+                ))}
+              </div>
+            </LayoutGroup>
+
+            <div className="flex gap-2 flex-1">
+              {/* Ciudad */}
+              <div className="relative flex-1">
+                <select
+                  value={ciudad}
+                  onChange={e => setFilter('ciudad', e.target.value)}
+                  className={selectCls}
+                >
+                  {CIUDADES.map(c => (
+                    <option key={c} value={c} style={{ background: '#0d1a10' }}>
+                      {c || 'Todas las ciudades'}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gold/60 text-[10px]">
+                  ▾
+                </div>
+              </div>
+
+              {/* Tipo inmueble */}
+              <div className="relative flex-1">
+                <select
+                  value={tipoInmueble}
+                  onChange={e => setFilter('tipoInmueble', e.target.value)}
+                  className={selectCls}
+                >
+                  {TIPOS.map(t => (
+                    <option key={t.value} value={t.value} style={{ background: '#0d1a10' }}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gold/60 text-[10px]">
+                  ▾
+                </div>
+              </div>
+
+              {(tipo || tipoInmueble || ciudad) && (
+                <button
+                  onClick={() => setParams(new URLSearchParams())}
+                  className="px-3 py-2 text-white/35 text-[12px] hover:text-white/60 transition-colors border border-white/[0.06] rounded-lg flex-shrink-0"
+                  title="Limpiar filtros"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="wrap pb-24">
-        {/* Tabs tipo operación */}
-        <div className="flex gap-2 mb-6 flex-wrap">
-          {TABS.map(t => (
-            <button
-              key={t.value}
-              onClick={() => setFilter('tipo', t.value)}
-              className="px-5 py-2 rounded-full text-[12.5px] font-semibold transition-all"
-              style={{
-                background: tipo === t.value ? '#C9A84C' : 'rgba(255,255,255,0.06)',
-                color: tipo === t.value ? '#0A2416' : 'rgba(255,255,255,0.6)',
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Filtros secundarios */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-          <div className="relative">
-            <select value={ciudad} onChange={e => setFilter('ciudad', e.target.value)} className={selectCls}>
-              {CIUDADES.map(c => <option key={c} value={c} style={{ background: '#0d1a10' }}>{c || 'Todas las ciudades'}</option>)}
-            </select>
-            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gold text-xs">▾</div>
-          </div>
-
-          <div className="relative">
-            <select value={tipoInmueble} onChange={e => setFilter('tipoInmueble', e.target.value)} className={selectCls}>
-              {TIPOS.map(t => <option key={t.value} value={t.value} style={{ background: '#0d1a10' }}>{t.label}</option>)}
-            </select>
-            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gold text-xs">▾</div>
-          </div>
-
-          <button
-            onClick={() => { setParams(new URLSearchParams()) }}
-            className="text-white/40 text-[12px] hover:text-white/70 transition-colors text-left px-3"
-          >
-            ✕ Limpiar filtros
-          </button>
-        </div>
-
-        {/* Grid */}
+      {/* Grid */}
+      <div className="wrap py-12 pb-24">
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[22px]">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-[420px] rounded-[16px] bg-white/04 animate-pulse" />
+              <motion.div
+                key={i}
+                className="h-[420px] rounded-[16px]"
+                style={{ background: 'rgba(255,255,255,0.03)' }}
+                animate={{ opacity: [0.4, 0.7, 0.4] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+              />
             ))}
           </div>
         ) : propiedades.length === 0 ? (
-          <div className="text-center py-24">
-            <div className="text-white/20 text-6xl mb-4">🏠</div>
-            <div className="text-white/50 text-lg">No se encontraron propiedades con estos filtros.</div>
-            <button onClick={() => setParams(new URLSearchParams())} className="mt-4 text-gold text-[13px] underline">
-              Ver todas las propiedades
+          <div className="text-center py-28">
+            <div
+              className="w-16 h-16 rounded-2xl border border-white/08 flex items-center justify-center text-3xl mx-auto mb-6"
+              style={{ background: 'rgba(255,255,255,0.03)' }}
+            >
+              🔍
+            </div>
+            <h2 className="text-white font-bold text-[22px] mb-2">Sin resultados</h2>
+            <p className="text-white/40 text-[14px] mb-6 max-w-xs mx-auto">
+              No encontramos propiedades con esos filtros. Intenta con otros criterios.
+            </p>
+            <button
+              onClick={() => setParams(new URLSearchParams())}
+              className="inline-flex items-center gap-2 border border-gold/30 text-gold px-6 py-3 rounded-xl text-[13px] font-semibold hover:bg-gold/[0.08] transition-colors"
+            >
+              Ver todas las propiedades →
             </button>
           </div>
         ) : (
           <AnimatePresence mode="wait">
             <motion.div
               key={`${tipo}-${tipoInmueble}-${ciudad}-${page}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.3 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[22px]"
             >
-              {propiedades.map(p => (
-                <PropertyCard key={p.id} propiedad={p} />
+              {propiedades.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <PropertyCard propiedad={p} />
+                </motion.div>
               ))}
             </motion.div>
           </AnimatePresence>
@@ -157,20 +248,36 @@ export default function PropiedadesPage() {
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-12">
+          <div className="flex justify-center gap-2 mt-14 flex-wrap">
+            {page > 1 && (
+              <button
+                onClick={() => goPage(page - 1)}
+                className="px-4 py-2 rounded-lg border border-white/10 text-white/50 text-[13px] hover:bg-white/[0.05] transition-colors"
+              >
+                ← Anterior
+              </button>
+            )}
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
               <button
                 key={p}
                 onClick={() => goPage(p)}
-                className="w-9 h-9 rounded-lg text-[13px] font-semibold transition-all"
+                className="w-10 h-10 rounded-lg text-[13px] font-semibold transition-all"
                 style={{
-                  background: p === page ? '#C9A84C' : 'rgba(255,255,255,0.06)',
-                  color: p === page ? '#0A2416' : 'rgba(255,255,255,0.5)',
+                  background: p === page ? '#C9A84C' : 'rgba(255,255,255,0.05)',
+                  color: p === page ? '#0A2416' : 'rgba(255,255,255,0.45)',
                 }}
               >
                 {p}
               </button>
             ))}
+            {page < totalPages && (
+              <button
+                onClick={() => goPage(page + 1)}
+                className="px-4 py-2 rounded-lg border border-white/10 text-white/50 text-[13px] hover:bg-white/[0.05] transition-colors"
+              >
+                Siguiente →
+              </button>
+            )}
           </div>
         )}
       </div>

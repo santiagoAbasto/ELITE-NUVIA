@@ -8,6 +8,7 @@ import { testimoniosRouter } from './routes/testimonios.js'
 import { authRouter } from './routes/auth.js'
 import { adminRouter } from './routes/admin.js'
 import { leadsRouter } from './routes/leads.js'
+import { newsletterRouter } from './routes/newsletter.js'
 import { sitemapRouter } from './routes/sitemap.js'
 
 export function createApp() {
@@ -32,6 +33,7 @@ export function createApp() {
   app.use('/api/v1/auth', authRouter)
   app.use('/api/v1/admin', adminRouter)
   app.use('/api/v1/leads', leadsRouter)
+  app.use('/api/v1/newsletter', newsletterRouter)
   app.use('/', sitemapRouter)
 
   app.use(errorHandler)

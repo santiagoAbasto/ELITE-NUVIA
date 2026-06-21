@@ -3,114 +3,147 @@ import { motion } from 'framer-motion'
 
 const SERVICIOS = [
   {
+    num: '01',
     icon: '🏠',
     tipo: 'VENTA',
     titulo: 'Venta de Propiedades',
-    descripcion: 'Vendemos tu propiedad al mejor precio del mercado boliviano. Realizamos valuacion gratuita, fotografia profesional, publicacion en todas las plataformas digitales y acompanamiento legal hasta la firma del minuto.',
-    puntos: ['Valuacion de mercado gratuita', 'Fotografia profesional', 'Publicacion multicanal', 'Acompanamiento legal y notarial', 'Negociacion con compradores'],
+    descripcion: 'Vendemos tu propiedad al mejor precio del mercado boliviano con valuacion gratuita, fotografia profesional y publicacion en todas las plataformas. Te acompanamos hasta la firma del minuto de transferencia.',
+    puntos: [
+      'Valuacion de mercado gratuita',
+      'Fotografia y video profesional',
+      'Publicacion multicanal digital',
+      'Acompanamiento legal y notarial',
+      'Negociacion con compradores',
+      'Contratos y minutas incluidos',
+    ],
     href: '/propiedades?tipo=VENTA',
     cta: 'Ver propiedades en venta',
     featured: false,
-    hint: undefined as string | undefined,
   },
   {
+    num: '02',
     icon: '🗝️',
     tipo: 'ALQUILER',
     titulo: 'Alquiler',
-    descripcion: 'Conectamos propietarios con inquilinos responsables. Gestionamos contratos, garantias, inventarios y seguimiento mensual. Ya sea que quieras alquilar tu propiedad o encontrar un inmueble para vivir o trabajar.',
-    puntos: ['Verificacion de inquilinos', 'Redaccion de contratos', 'Cobro de garantias', 'Seguimiento mensual', 'Resolucion de conflictos'],
+    descripcion: 'Conectamos propietarios con inquilinos verificados y responsables. Gestionamos contratos, garantias, inventarios y seguimiento mensual completo para ambas partes.',
+    puntos: [
+      'Verificacion de inquilinos',
+      'Redaccion de contratos legales',
+      'Cobro y custodia de garantias',
+      'Seguimiento y mantenimiento',
+      'Resolucion de conflictos',
+      'Renovacion automatica de contrato',
+    ],
     href: '/propiedades?tipo=ALQUILER',
     cta: 'Ver inmuebles en alquiler',
     featured: true,
-    hint: undefined as string | undefined,
   },
   {
+    num: '03',
     icon: '🤝',
     tipo: 'ANTICRETICO',
     titulo: 'Anticretico',
-    descripcion: 'Modalidad exclusiva boliviana en la que entregas una suma de dinero al propietario a cambio del derecho a usar el inmueble por un periodo acordado. Al terminar el contrato, recuperas el 100% de tu inversion.',
-    puntos: ['Explicacion detallada del proceso', 'Calculo de montos referenciales', 'Redaccion del contrato', 'Registro notarial', 'Monto 100% recuperable'],
+    descripcion: 'La modalidad exclusiva de Bolivia. Deposita un monto al propietario y vive en la propiedad por el tiempo pactado sin pagar renta mensual. Al terminar el contrato, recuperas el 100% de tu inversion.',
+    puntos: [
+      'Explicacion detallada del proceso',
+      'Calculo de montos referenciales',
+      'Redaccion del contrato anticretico',
+      'Registro notarial incluido',
+      'Monto 100% recuperable',
+      'Asesoria legal especializada',
+    ],
     href: '/propiedades?tipo=ANTICRETICO',
     cta: 'Ver opciones de anticretico',
     featured: false,
-    hint: '¿Como funciona el anticretico?' as string | undefined,
   },
 ]
 
 export default function ServiciosPage() {
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
-      <div className="pt-28 pb-24">
-        <div className="wrap mb-16">
-          <div className="text-gold text-[11px] font-bold tracking-[3px] uppercase mb-3">Lo que hacemos</div>
-          <h1 className="text-[40px] font-bold text-white mb-3" style={{ letterSpacing: '-0.02em' }}>
-            Nuestros Servicios
+      {/* Header */}
+      <div className="relative pt-28 pb-14" style={{ background: 'linear-gradient(180deg, #0D3B27 0%, #080e09 100%)' }}>
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)' }} />
+        <div className="wrap">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-5 h-px bg-gold" />
+            <span className="text-gold text-[11px] font-bold tracking-[3px] uppercase">Lo que hacemos</span>
+          </div>
+          <h1 className="text-[40px] md:text-[48px] font-bold text-white leading-[1.05]" style={{ letterSpacing: '-0.03em' }}>
+            Nuestros <em className="not-italic text-gold" style={{ fontFamily: "'Playfair Display', serif" }}>Servicios</em>
           </h1>
-          <p className="text-white/45 text-[15px] max-w-[540px]">
-            Soluciones inmobiliarias a tu medida. Venta, alquiler y anticretico con respaldo profesional en todo Bolivia.
+          <p className="text-white/45 text-[14px] mt-3 max-w-[520px] leading-relaxed">
+            Venta, alquiler y anticretico con respaldo profesional en Cochabamba, Santa Cruz, La Paz y Oruro.
           </p>
         </div>
+      </div>
 
-        <div className="wrap space-y-8">
-          {SERVICIOS.map((svc, i) => (
-            <motion.div
-              key={svc.tipo}
-              className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 items-center border rounded-[20px] p-8 md:p-12"
-              style={{
-                borderColor: svc.featured ? 'rgba(201,168,76,0.3)' : 'rgba(255,255,255,0.06)',
-                background: svc.featured ? 'rgba(201,168,76,0.03)' : 'rgba(255,255,255,0.02)',
-              }}
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div>
-                <div className="flex items-center gap-4 mb-5">
-                  <div className="w-14 h-14 rounded-[14px] border border-gold/20 bg-gold/10 flex items-center justify-center text-2xl">
-                    {svc.icon}
-                  </div>
-                  <div>
-                    <div className="text-gold text-[11px] font-bold tracking-[3px] uppercase">{svc.tipo}</div>
-                    <h2 className="text-[26px] font-bold text-white leading-tight">{svc.titulo}</h2>
-                  </div>
+      {/* Servicios */}
+      <div className="wrap py-20 pb-24 space-y-6">
+        {SERVICIOS.map((svc, i) => (
+          <motion.div
+            key={svc.tipo}
+            className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10 items-start rounded-[20px] border p-8 md:p-12"
+            style={{
+              borderColor: svc.featured ? 'rgba(201,168,76,0.3)' : 'rgba(255,255,255,0.06)',
+              background: svc.featured ? 'rgba(201,168,76,0.025)' : 'rgba(255,255,255,0.015)',
+            }}
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-[14px] border border-gold/20 bg-gold/08 flex items-center justify-center text-2xl flex-shrink-0">
+                  {svc.icon}
                 </div>
-                <p className="text-white/55 text-[14px] leading-[1.75] mb-6">{svc.descripcion}</p>
-                {svc.hint && (
-                  <div className="text-white/30 text-[12px] italic mb-4">{svc.hint}</div>
-                )}
-                <Link
-                  to={svc.href}
-                  className="inline-flex items-center gap-2 text-gold text-[13px] font-semibold hover:text-gold-light transition-colors"
-                >
-                  {svc.cta} →
-                </Link>
+                <div>
+                  <div className="text-gold/50 text-[11px] font-bold tracking-[3px] uppercase mb-0.5">{svc.num}</div>
+                  <h2 className="text-[26px] md:text-[30px] font-bold text-white leading-tight">{svc.titulo}</h2>
+                </div>
               </div>
+              <p className="text-white/50 text-[14px] leading-[1.8] mb-7 max-w-[520px]">{svc.descripcion}</p>
+              <Link
+                to={svc.href}
+                className="inline-flex items-center gap-2 bg-gold text-green-deep px-6 py-3 rounded-xl font-bold text-[13px] hover:bg-gold-light transition-colors"
+              >
+                {svc.cta} →
+              </Link>
+            </div>
 
-              <div className="bg-white/03 border border-white/06 rounded-[16px] p-6">
-                <div className="text-white/30 text-[10px] font-bold tracking-[2.5px] uppercase mb-4">Incluye</div>
-                <ul className="space-y-3">
-                  {svc.puntos.map(p => (
-                    <li key={p} className="flex items-start gap-3 text-[13.5px] text-white/65">
-                      <div className="w-5 h-5 rounded-full bg-gold/15 border border-gold/25 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-gold" />
-                      </div>
-                      {p}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+            <div className="bg-white/03 border border-white/06 rounded-[16px] p-6">
+              <div className="text-white/25 text-[10px] font-bold tracking-[2.5px] uppercase mb-5">Que incluye</div>
+              <ul className="space-y-3.5">
+                {svc.puntos.map(p => (
+                  <li key={p} className="flex items-start gap-3 text-[13px] text-white/60">
+                    <div className="w-5 h-5 rounded-full bg-gold/12 border border-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-gold" />
+                    </div>
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
-        {/* CTA final */}
-        <div className="wrap mt-16 text-center">
-          <h2 className="text-[28px] font-bold text-white mb-3">¿No sabes cual es la mejor opcion para ti?</h2>
-          <p className="text-white/45 text-[14px] mb-6">Un agente te asesora sin compromiso.</p>
-          <Link to="/contacto" className="inline-flex items-center gap-2 bg-gold text-green-deep px-8 py-3.5 rounded-xl font-bold text-[13px] hover:bg-gold-light transition-colors">
-            Consultar gratis
-          </Link>
+      {/* CTA bottom */}
+      <div className="border-t border-white/05" style={{ background: '#060e08' }}>
+        <div className="wrap py-16 text-center">
+          <h2 className="text-[26px] font-bold text-white mb-2" style={{ letterSpacing: '-0.02em' }}>
+            ¿No sabes que opcion es mejor para ti?
+          </h2>
+          <p className="text-white/40 text-[14px] mb-7">Un agente te asesora sin costo ni compromiso.</p>
+          <div className="flex justify-center gap-3 flex-wrap">
+            <Link to="/contacto" className="bg-gold text-green-deep px-8 py-3.5 rounded-xl font-bold text-[13px] hover:bg-gold-light transition-colors">
+              Consultar gratis
+            </Link>
+            <Link to="/propiedades" className="border border-white/12 text-white/70 px-8 py-3.5 rounded-xl font-semibold text-[13px] hover:bg-white/05 transition-colors">
+              Ver propiedades
+            </Link>
+          </div>
         </div>
       </div>
     </div>

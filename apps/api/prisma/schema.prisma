@@ -162,3 +162,13 @@ model PdfExport {
 
   @@map("pdf_exports")
 }
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  nombre    String?
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("subscribers")
+}
