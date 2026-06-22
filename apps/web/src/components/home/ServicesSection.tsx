@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { ParticlesCanvas } from './ParticlesCanvas'
 import { SectionEyebrow } from '../ui/SectionEyebrow'
-import { FadeInView } from '../ui/FadeIn'
 
 const IconHome = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -66,6 +65,8 @@ const SERVICES: {
   },
 ]
 
+const TITLE_WORDS = ['Nuestros', 'Servicios']
+
 export function ServicesSection() {
   return (
     <section className="relative py-24 overflow-hidden" style={{ background: 'var(--green-deep)' }}>
@@ -80,20 +81,64 @@ export function ServicesSection() {
       />
 
       <div className="wrap relative z-10">
-        <FadeInView className="text-center mb-14">
-          <SectionEyebrow label="Lo que hacemos" center />
-          <h2 className="text-[38px] font-bold text-white mt-2" style={{ letterSpacing: '-0.02em' }}>
-            Nuestros{' '}
-            <em className="not-italic text-gold" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Servicios
-            </em>
-          </h2>
-          <p className="text-white/40 text-[14px] mt-3 max-w-[480px] mx-auto">
-            Soluciones inmobiliarias a tu medida. Respaldo y confianza en cada etapa de tu vida.
-          </p>
-        </FadeInView>
+        {/* Header */}
+        <div className="text-center mb-14">
+          {/* Eyebrow with clip-path reveal */}
+          <motion.div
+            className="flex justify-center"
+            initial={{ clipPath: 'inset(0 100% 0 0)', opacity: 0 }}
+            whileInView={{ clipPath: 'inset(0 0% 0 0)', opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <SectionEyebrow label="Lo que hacemos" center />
+          </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Title word-by-word blur reveal */}
+          <h2
+            className="text-[38px] font-bold text-white mt-2"
+            style={{ letterSpacing: '-0.02em' }}
+          >
+            {TITLE_WORDS.map((word, i) => (
+              <motion.span
+                key={word}
+                className={`inline-block ${i < TITLE_WORDS.length - 1 ? 'mr-3' : ''}`}
+                initial={{ opacity: 0, y: 30, filter: 'blur(12px)' }}
+                whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.2 + i * 0.12,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                {i === TITLE_WORDS.length - 1 ? (
+                  <em
+                    className="not-italic text-gold"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                  >
+                    {word}
+                  </em>
+                ) : (
+                  word
+                )}
+              </motion.span>
+            ))}
+          </h2>
+
+          <motion.p
+            className="text-white/40 text-[14px] mt-3 max-w-[480px] mx-auto"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            Soluciones inmobiliarias a tu medida. Respaldo y confianza en cada etapa de tu vida.
+          </motion.p>
+        </div>
+
+        {/* Service cards with dramatic 3D entrance */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5" style={{ perspective: '1000px' }}>
           {SERVICES.map((svc, i) => (
             <motion.div
               key={svc.name}
@@ -101,11 +146,35 @@ export function ServicesSection() {
               style={{
                 borderColor: svc.featured ? 'rgba(201,168,76,0.35)' : 'rgba(201,168,76,0.15)',
                 background: svc.featured ? 'rgba(201,168,76,0.04)' : 'rgba(255,255,255,0.025)',
+                transformStyle: 'preserve-3d',
               }}
-              initial={{ opacity: 0, y: 48 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{
+                opacity: 0,
+                y: 80,
+                scale: 0.85,
+                rotateX: 20,
+                filter: 'blur(8px)',
+              }}
+              whileInView={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                filter: 'blur(0px)',
+              }}
               viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.5, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                duration: 0.8,
+                delay: i * 0.18,
+                ease: [0.22, 1, 0.36, 1],
+                filter: { duration: 0.5 },
+                rotateX: {
+                  type: 'spring',
+                  stiffness: 80,
+                  damping: 12,
+                  delay: i * 0.18,
+                },
+              }}
               whileHover={{ rotateY: 3, rotateX: -2, scale: 1.02 }}
             >
               <div
