@@ -51,7 +51,8 @@ const AdminApp = lazy(() => import('./admin/AdminApp'))
 |---|---|---|---|
 | CMS | Full access | None | None |
 | Agent management | Create/edit/deactivate | View list | Own profile |
-| All properties | Full | Full | Own only |
+| All properties (view) | Full | Full | Todos (solo lectura) |
+| Edit property | Full | Full | Solo si es su captación O SUPER_ADMIN la asignó |
 | All leads | Full | Full | Own only |
 | Agenda | All agents + own | All agents | Own only |
 | Global reports | Full | Full | Own metrics only |
@@ -122,9 +123,13 @@ Agent form fields:
 - Acceso a su agenda
 
 **Permisos del agente en el CRM:**
-- Ver TODAS las propiedades del sistema
-- Crear y gestionar sus propias captaciones
+- Ver TODAS las propiedades del sistema (solo lectura: fotos, datos, consulta)
 - Generar fichas PDF de cualquier propiedad (con sus datos impresos)
+- Crear sus propias captaciones y subir archivos a ellas
+- Editar (CRUD completo) una propiedad ÚNICAMENTE si:
+  - Es su propia captación (él la captó), O
+  - SUPER_ADMIN se la asignó explícitamente con permiso de edición
+- Sin ninguna de esas dos condiciones → vista de solo lectura, sin edición
 - Ver y gestionar sus leads asignados
 - Su agenda personal
 
