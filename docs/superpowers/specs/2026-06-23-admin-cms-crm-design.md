@@ -101,18 +101,84 @@ model SiteContent {
 
 ### 5.1 Agents Module (SUPER_ADMIN only)
 
+**Created exclusively by SUPER_ADMIN.**
+
 Agent form fields:
-- nombre, apellido, email, teléfono, whatsapp
-- documento: tipo (CI/Pasaporte/RUC) + número
-- foto (Cloudinary upload)
-- bio (TipTap)
-- especialidades: tipo de operación, zonas
-- acceso: email + contraseña temporal (forced change on first login)
-- estado: Activo / Inactivo / Suspendido
+- Primer nombre, primer apellido, segundo apellido
+- Fecha de nacimiento, edad (calculada automáticamente)
+- Foto de perfil (Cloudinary upload)
+- Correo corporativo (ej. nombre@elitnuvia.com)
+- Número de teléfono
+- Tiempo de contrato: fecha inicio + fecha fin
+- Subir contrato (PDF — almacenado en Cloudinary)
+- Estado: Activo / Inactivo / Suspendido
+- Credenciales de acceso: correo corporativo como usuario + contraseña temporal (forzado cambio en primer login)
 
-Agent card shows: active properties, active leads, monthly closings, conversion rate.
+**Ficha de agente (vista interna):**
+- Datos completos + foto
+- Contrato adjunto con fecha de vencimiento (alerta cuando falten 30 días)
+- Métricas: propiedades activas, captaciones activas, cierres del mes, tasa de conversión
+- Historial de actividades completo del agente
+- Acceso a su agenda
 
-### 5.2 Properties Module (full CRUD)
+**Permisos del agente en el CRM:**
+- Ver TODAS las propiedades del sistema
+- Crear y gestionar sus propias captaciones
+- Generar fichas PDF de cualquier propiedad (con sus datos impresos)
+- Ver y gestionar sus leads asignados
+- Su agenda personal
+
+### 5.2 Captaciones Module
+
+Una **captación** es el proceso de captar un bien inmueble de un propietario para comercializarlo (venta, alquiler o anticretico). Es el punto de entrada al inventario de propiedades.
+
+**Flujo completo de captación:**
+
+```
+PROSPECTO → VISITA DE CAPTACIÓN → ACUERDO → PUBLICACIÓN → SEGUIMIENTO → CIERRE
+```
+
+**Formulario de captación (creado por agente o SUPER_ADMIN):**
+
+Datos del propietario:
+- Nombre completo, teléfono, email
+- Documento de identidad
+- Datos de contacto adicionales
+
+Datos del inmueble:
+- Tipo: Casa / Departamento / Garzonier / Terreno / Local / Otro
+- Operación: Venta / Alquiler / Anticretico
+- Dirección, ciudad, zona
+- Características: m2, dormitorios, baños, garage, amueblado, piscina
+- Precio solicitado por el propietario
+- Precio sugerido por el agente
+- Fotos del inmueble (hasta 20, drag-and-drop)
+- Observaciones (TipTap)
+
+Datos del acuerdo:
+- Fecha de captación
+- Duración del acuerdo de exclusividad (fecha inicio + fecha fin)
+- Comisión acordada (%)
+- Subir contrato de captación (PDF)
+
+**Estados de la captación:**
+```
+EN NEGOCIACIÓN → CAPTADA → PUBLICADA → EN CIERRE → CERRADA → EXPIRADA
+```
+
+**Registro de actividades de la captación (timeline sin perder el hilo):**
+Cada acción queda registrada con: tipo, descripción, agente, fecha/hora.
+Tipos: Llamada al propietario | Visita al inmueble | Foto actualizada | Precio ajustado | Documento subido | Nota interna | Publicada en portal | Visita de cliente | Oferta recibida | Cierre
+
+**Ficha PDF de captación:**
+- Datos del inmueble (fotos, características, precio)
+- Datos completos del agente responsable: foto, nombre completo, teléfono, correo corporativo, logo de la empresa
+- Código QR al listing público (cuando está publicada)
+- Fecha de generación
+
+Al marcar una captación como **CAPTADA** → se convierte automáticamente en una `Propiedad` publicable en el sitio.
+
+### 5.3 Properties Module (full CRUD)
 
 - Up to 20 photos with drag-and-drop reordering
 - States: Activa / Pausada / Reservada / Cerrada
@@ -256,12 +322,83 @@ enum TipoEvento {
 }
 ```
 
+```prisma
+model Captacion {
+  id                  String          @id @default(cuid())
+  // Propietario
+  propietarioNombre   String
+  propietarioTelefono String
+  propietarioEmail    String?
+  propietarioDoc      String?
+  // Inmueble
+  tipoInmueble        TipoInmueble
+  tipo                TipoOperacion
+  ciudad              String
+  zona                String?
+  direccion           String?
+  descripcion         String?
+  dormitorios         Int?
+  banos               Int?
+  superficieM2        Decimal?        @db.Decimal(10, 2)
+  garage              Boolean         @default(false)
+  amueblado           Boolean         @default(false)
+  piscina             Boolean         @default(false)
+  fotos               Json            @default("[]")
+  // Acuerdo
+  precioSolicitado    Decimal         @db.Decimal(12, 2)
+  precioSugerido      Decimal?        @db.Decimal(12, 2)
+  moneda              String          @default("BOB")
+  comisionPct         Decimal?        @db.Decimal(5, 2)
+  fechaCaptacion      DateTime        @default(now())
+  contratoUrl         String?
+  exclusividadInicio  DateTime?
+  exclusividadFin     DateTime?
+  // Estado
+  estado              EstadoCaptacion @default(EN_NEGOCIACION)
+  // Relaciones
+  agenteId            String
+  agente              Agente          @relation(fields: [agenteId], references: [id])
+  propiedadId         String?         @unique
+  propiedad           Propiedad?      @relation(fields: [propiedadId], references: [id])
+  actividades         ActividadCaptacion[]
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@map("captaciones")
+}
+
+model ActividadCaptacion {
+  id           String     @id @default(cuid())
+  captacionId  String
+  captacion    Captacion  @relation(fields: [captacionId], references: [id], onDelete: Cascade)
+  agenteId     String
+  agente       Agente     @relation(fields: [agenteId], references: [id])
+  tipo         String     // llamada | visita_inmueble | foto_actualizada | precio_ajustado | documento | nota | publicada | visita_cliente | oferta | cierre
+  descripcion  String
+  createdAt    DateTime   @default(now())
+
+  @@map("actividades_captacion")
+}
+
+enum EstadoCaptacion {
+  EN_NEGOCIACION
+  CAPTADA
+  PUBLICADA
+  EN_CIERRE
+  CERRADA
+  EXPIRADA
+}
+```
+
 **Existing model additions:**
 ```prisma
 // Agente: add
-documento     String?
-tipoDoc       String?  // CI | Pasaporte | RUC
-especialidades Json?
+primerApellido      String
+segundoApellido     String?
+fechaNacimiento     DateTime?
+tiempoContratoInicio DateTime?
+tiempoContratoFin   DateTime?
+contratoUrl         String?   // PDF subido a Cloudinary
 
 // Lead: add
 temperatura   String   @default("FRIO") // FRIO | TIBIO | CALIENTE
