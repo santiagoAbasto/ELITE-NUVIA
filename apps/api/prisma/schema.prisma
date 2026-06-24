@@ -37,6 +37,22 @@ enum LeadEstado {
   PERDIDO
 }
 
+enum TipoEvento {
+  VISITA
+  LLAMADA
+  CIERRE
+  REUNION
+}
+
+enum EstadoCaptacion {
+  EN_NEGOCIACION
+  CAPTADA
+  PUBLICADA
+  EN_CIERRE
+  CERRADA
+  EXPIRADA
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -52,55 +68,68 @@ model User {
 }
 
 model Agente {
-  id          String      @id @default(cuid())
-  slug        String      @unique
-  nombre      String
-  apellido    String
-  email       String      @unique
-  telefono    String
-  whatsapp    String
-  foto        String?
-  bio         String?
-  activo      Boolean     @default(true)
-  propiedades Propiedad[]
-  leads       Lead[]
-  pdfExports  PdfExport[]
-  user        User?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id                   String               @id @default(cuid())
+  slug                 String               @unique
+  nombre               String
+  apellido             String
+  primerApellido       String?
+  segundoApellido      String?
+  fechaNacimiento      DateTime?
+  email                String               @unique
+  telefono             String
+  whatsapp             String
+  foto                 String?
+  bio                  String?
+  activo               Boolean              @default(true)
+  contratoUrl          String?
+  contratoInicio       DateTime?
+  contratoFin          DateTime?
+  propiedades          Propiedad[]
+  leads                Lead[]
+  pdfExports           PdfExport[]
+  captaciones          Captacion[]
+  eventos              Evento[]
+  interacciones        Interaccion[]
+  actividadesCaptacion ActividadCaptacion[]
+  user                 User?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
 
   @@map("agentes")
 }
 
 model Propiedad {
-  id           String        @id @default(cuid())
-  slug         String        @unique
-  titulo       String
-  descripcion  String
-  tipo         TipoOperacion
-  tipoInmueble TipoInmueble
-  precio       Decimal       @db.Decimal(12, 2)
-  moneda       String        @default("BOB")
-  ciudad       String
-  zona         String?
-  direccion    String?
-  latitud      Float?
-  longitud     Float?
-  dormitorios  Int?
-  banos        Int?
-  superficieM2 Decimal?      @db.Decimal(10, 2)
-  garage       Boolean       @default(false)
-  amueblado    Boolean       @default(false)
-  piscina      Boolean       @default(false)
-  destacada    Boolean       @default(false)
-  activa       Boolean       @default(true)
-  agenteId     String
-  agente       Agente        @relation(fields: [agenteId], references: [id])
-  fotos        Foto[]
-  leads        Lead[]
-  pdfExports   PdfExport[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id               String        @id @default(cuid())
+  slug             String        @unique
+  titulo           String
+  descripcion      String
+  tipo             TipoOperacion
+  tipoInmueble     TipoInmueble
+  precio           Decimal       @db.Decimal(12, 2)
+  moneda           String        @default("BOB")
+  ciudad           String
+  zona             String?
+  direccion        String?
+  latitud          Float?
+  longitud         Float?
+  dormitorios      Int?
+  banos            Int?
+  superficieM2     Decimal?      @db.Decimal(10, 2)
+  garage           Boolean       @default(false)
+  amueblado        Boolean       @default(false)
+  piscina          Boolean       @default(false)
+  destacada        Boolean       @default(false)
+  activa           Boolean       @default(true)
+  agenteId         String
+  agente           Agente        @relation(fields: [agenteId], references: [id])
+  agenteAsignadoId String?
+  fotos            Foto[]
+  leads            Lead[]
+  pdfExports       PdfExport[]
+  captacion        Captacion?
+  eventos          Evento[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   @@index([tipo, activa])
   @@index([ciudad, activa])
@@ -136,18 +165,25 @@ model Testimonio {
 }
 
 model Lead {
-  id          String     @id @default(cuid())
-  nombre      String
-  email       String?
-  telefono    String
-  mensaje     String?
-  estado      LeadEstado @default(NUEVO)
-  propiedadId String?
-  propiedad   Propiedad? @relation(fields: [propiedadId], references: [id])
-  agenteId    String?
-  agente      Agente?    @relation(fields: [agenteId], references: [id])
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id            String        @id @default(cuid())
+  nombre        String
+  email         String?
+  telefono      String
+  mensaje       String?
+  estado        LeadEstado    @default(NUEVO)
+  temperatura   String        @default("FRIO")
+  presupuesto   Decimal?      @db.Decimal(12, 2)
+  preferencias  Json?
+  valorCierre   Decimal?      @db.Decimal(12, 2)
+  comision      Decimal?      @db.Decimal(12, 2)
+  propiedadId   String?
+  propiedad     Propiedad?    @relation(fields: [propiedadId], references: [id])
+  agenteId      String?
+  agente        Agente?       @relation(fields: [agenteId], references: [id])
+  interacciones Interaccion[]
+  eventos       Evento[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@map("leads")
 }
@@ -171,4 +207,111 @@ model Subscriber {
   createdAt DateTime @default(now())
 
   @@map("subscribers")
+}
+
+model SiteContent {
+  id        String   @id @default(cuid())
+  seccion   String   @unique
+  datos     Json
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@map("site_content")
+}
+
+model Captacion {
+  id                  String               @id @default(cuid())
+  propietarioNombre   String
+  propietarioTelefono String
+  propietarioEmail    String?
+  propietarioDoc      String?
+  tipoInmueble        TipoInmueble
+  tipo                TipoOperacion
+  ciudad              String
+  zona                String?
+  direccion           String?
+  descripcion         String?
+  dormitorios         Int?
+  banos               Int?
+  superficieM2        Decimal?             @db.Decimal(10, 2)
+  garage              Boolean              @default(false)
+  amueblado           Boolean              @default(false)
+  piscina             Boolean              @default(false)
+  fotos               Json                 @default("[]")
+  precioSolicitado    Decimal              @db.Decimal(12, 2)
+  precioSugerido      Decimal?             @db.Decimal(12, 2)
+  moneda              String               @default("BOB")
+  comisionPct         Decimal?             @db.Decimal(5, 2)
+  fechaCaptacion      DateTime             @default(now())
+  contratoUrl         String?
+  exclusividadInicio  DateTime?
+  exclusividadFin     DateTime?
+  estado              EstadoCaptacion      @default(EN_NEGOCIACION)
+  agenteId            String
+  agente              Agente               @relation(fields: [agenteId], references: [id])
+  propiedadId         String?              @unique
+  propiedad           Propiedad?           @relation(fields: [propiedadId], references: [id])
+  actividades         ActividadCaptacion[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@map("captaciones")
+}
+
+model ActividadCaptacion {
+  id          String    @id @default(cuid())
+  captacionId String
+  captacion   Captacion @relation(fields: [captacionId], references: [id], onDelete: Cascade)
+  agenteId    String
+  agente      Agente    @relation(fields: [agenteId], references: [id])
+  tipo        String
+  descripcion String
+  createdAt   DateTime  @default(now())
+
+  @@map("actividades_captacion")
+}
+
+model Evento {
+  id          String     @id @default(cuid())
+  titulo      String
+  tipo        TipoEvento
+  inicio      DateTime
+  fin         DateTime
+  agenteId    String
+  agente      Agente     @relation(fields: [agenteId], references: [id])
+  leadId      String?
+  lead        Lead?      @relation(fields: [leadId], references: [id])
+  propiedadId String?
+  propiedad   Propiedad? @relation(fields: [propiedadId], references: [id])
+  notas       String?
+  createdAt   DateTime   @default(now())
+
+  @@map("eventos")
+}
+
+model Interaccion {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  agenteId  String
+  agente    Agente   @relation(fields: [agenteId], references: [id])
+  tipo      String
+  texto     String
+  eventoId  String?
+  createdAt DateTime @default(now())
+
+  @@map("interacciones")
+}
+
+model Notificacion {
+  id           String   @id @default(cuid())
+  userId       String
+  titulo       String
+  cuerpo       String
+  leida        Boolean  @default(false)
+  tipo         String
+  referenciaId String?
+  createdAt    DateTime @default(now())
+
+  @@map("notificaciones")
 }
