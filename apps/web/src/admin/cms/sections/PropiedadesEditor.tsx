@@ -136,7 +136,7 @@ export default function PropiedadesEditor({ datos, onChange }: Props) {
               <input
                 value={operacion.value}
                 onChange={e => updateOperacion(idx, { ...operacion, value: e.target.value })}
-                placeholder="VENTA"
+                placeholder="Vacío = todos"
                 className={inputClass}
               />
               <button type="button" onClick={() => removeOperacion(idx)} className="rounded-lg px-3 text-sm font-semibold text-white/[0.42] hover:bg-red-400/[0.08] hover:text-red-300">

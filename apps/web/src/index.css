@@ -157,3 +157,27 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* react-big-calendar dark theme */
+.rbc-dark .rbc-calendar { background: transparent; color: rgba(255,255,255,0.80); font-family: inherit; }
+.rbc-dark .rbc-header { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.07); padding: 8px 4px; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.42); }
+.rbc-dark .rbc-month-view, .rbc-dark .rbc-time-view { border-color: rgba(255,255,255,0.07); }
+.rbc-dark .rbc-day-bg { background: transparent; }
+.rbc-dark .rbc-off-range-bg { background: rgba(0,0,0,0.15); }
+.rbc-dark .rbc-today { background: rgba(201,168,76,0.06); }
+.rbc-dark .rbc-time-slot { border-color: rgba(255,255,255,0.04); }
+.rbc-dark .rbc-timeslot-group { border-color: rgba(255,255,255,0.06); }
+.rbc-dark .rbc-time-header-cell { border-color: rgba(255,255,255,0.07); }
+.rbc-dark .rbc-time-content { border-color: rgba(255,255,255,0.07); }
+.rbc-dark .rbc-time-gutter .rbc-timeslot-group { border-color: rgba(255,255,255,0.06); }
+.rbc-dark .rbc-label { font-size: 11px; color: rgba(255,255,255,0.30); }
+.rbc-dark .rbc-current-time-indicator { background: #C9A84C; }
+.rbc-dark .rbc-toolbar button { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.09); color: rgba(255,255,255,0.60); border-radius: 12px; padding: 6px 14px; font-size: 12px; font-weight: 700; }
+.rbc-dark .rbc-toolbar button:hover { background: rgba(201,168,76,0.12); color: #C9A84C; border-color: rgba(201,168,76,0.28); }
+.rbc-dark .rbc-toolbar button.rbc-active { background: rgba(201,168,76,0.14); color: #C9A84C; border-color: rgba(201,168,76,0.30); }
+.rbc-dark .rbc-toolbar-label { font-size: 15px; font-weight: 800; color: white; letter-spacing: -0.02em; }
+.rbc-dark .rbc-date-cell { color: rgba(255,255,255,0.42); font-size: 12px; }
+.rbc-dark .rbc-date-cell.rbc-now { color: #C9A84C; font-weight: 800; }
+.rbc-dark .rbc-show-more { color: #C9A84C; font-size: 11px; font-weight: 700; }
+.rbc-dark .rbc-agenda-view table { border-color: rgba(255,255,255,0.06); }
+.rbc-dark .rbc-agenda-date-cell, .rbc-dark .rbc-agenda-time-cell { color: rgba(255,255,255,0.38); font-size: 12px; }
