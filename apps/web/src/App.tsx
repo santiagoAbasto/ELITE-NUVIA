@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import HomePage from './pages/HomePage'
@@ -8,9 +9,22 @@ import ServiciosPage from './pages/ServiciosPage'
 import NosotrosPage from './pages/NosotrosPage'
 import ContactoPage from './pages/ContactoPage'
 
+const AdminRouter = lazy(() => import('./admin/AdminRouter'))
+
 export default function App() {
   return (
     <Routes>
+      {/* Admin panel — lazy loaded, zero cost to public bundle */}
+      <Route
+        path="/admin/*"
+        element={
+          <Suspense fallback={<div className="min-h-screen bg-zinc-950" />}>
+            <AdminRouter />
+          </Suspense>
+        }
+      />
+
+      {/* Public site */}
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/propiedades" element={<PropiedadesPage />} />
