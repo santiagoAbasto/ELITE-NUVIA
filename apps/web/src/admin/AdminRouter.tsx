@@ -5,6 +5,9 @@ import LoginPage from './login/LoginPage'
 import AdminApp from './AdminApp'
 
 const DashboardPage = lazy(() => import('./dashboard/DashboardPage'))
+const CmsShell = lazy(() => import('./cms/CmsShell'))
+const PropiedadesPage = lazy(() => import('./crm/propiedades/PropiedadesPage'))
+const PropiedadDetail = lazy(() => import('./crm/propiedades/PropiedadDetail'))
 
 function Spinner() {
   return (
@@ -35,7 +38,16 @@ function AdminRoutes() {
       >
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Suspense fallback={<Spinner />}><DashboardPage /></Suspense>} />
-        {/* Remaining routes wired in plans 06–08 */}
+
+        {/* CMS — /admin/cms/:seccion */}
+        <Route path="cms/:seccion" element={<Suspense fallback={<Spinner />}><CmsShell /></Suspense>} />
+        <Route path="cms" element={<Navigate to="/admin/cms/home" replace />} />
+
+        {/* CRM — Propiedades */}
+        <Route path="propiedades" element={<Suspense fallback={<Spinner />}><PropiedadesPage /></Suspense>} />
+        <Route path="propiedades/:id" element={<Suspense fallback={<Spinner />}><PropiedadDetail /></Suspense>} />
+
+        {/* Remaining modules wired in plans 07–08 */}
         <Route path="*" element={
           <div className="flex items-center justify-center h-64">
             <p className="text-zinc-500 text-sm">Módulo en construcción</p>
