@@ -98,3 +98,56 @@ export interface AuthPayload {
   rol: Rol
   nombre: string
 }
+
+// CRM types
+export type TipoEvento = 'VISITA' | 'LLAMADA' | 'CIERRE' | 'REUNION'
+export type EstadoCaptacion = 'EN_NEGOCIACION' | 'CAPTADA' | 'PUBLICADA' | 'EN_CIERRE' | 'CERRADA' | 'EXPIRADA'
+export type Temperatura = 'FRIO' | 'TIBIO' | 'CALIENTE'
+
+export interface AdminAgente {
+  id: string
+  nombre: string
+  apellido: string
+  primerApellido?: string
+  segundoApellido?: string
+  email: string
+  telefono: string
+  whatsapp: string
+  foto?: string | null
+  activo: boolean
+  contratoFin?: string | null
+  _count?: { propiedades: number; captaciones: number; leads: number }
+}
+
+export interface Captacion {
+  id: string
+  estado: EstadoCaptacion
+  agenteId: string
+  propietarioNombre: string
+  propietarioTelefono: string
+  tipoInmueble: TipoInmueble
+  tipo: TipoOperacion
+  ciudad: string
+  precioSolicitado: number
+  moneda: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Evento {
+  id: string
+  titulo: string
+  tipo: TipoEvento
+  inicio: string
+  fin: string
+  agenteId: string
+  leadId?: string | null
+  propiedadId?: string | null
+  notas?: string | null
+}
+
+export interface SiteContent {
+  seccion: string
+  datos: Record<string, unknown>
+  updatedAt?: string
+}
