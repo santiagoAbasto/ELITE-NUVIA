@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AgentsSection } from '../components/home/AgentsSection'
-import { StatsSection } from '../components/home/StatsSection'
+import { StatsSection, type StatsSectionItem } from '../components/home/StatsSection'
+import { useCmsSection } from '../hooks/useCmsSection'
+import { DEFAULT_CMS_DATA } from '../lib/cmsDefaults'
 
 // Icons premium — línea fina, únicos, sin ambigüedad
 const IconAward = () => (
@@ -70,7 +72,42 @@ const HITOS = [
   { year: '2025', num: '05', texto: '+200 familias. Nuevas metas.' },
 ]
 
+interface TimelineEntry {
+  id: string
+  anio: string
+  texto: string
+}
+
+interface CmsStat {
+  id: string
+  numero: string
+  etiqueta: string
+}
+
+interface NosotrosCms {
+  mision?: string
+  timeline?: TimelineEntry[]
+  stats?: CmsStat[]
+}
+
+function parseStat(stat: CmsStat): StatsSectionItem {
+  const match = stat.numero.match(/^(\+)?(\d+)(.*)$/)
+  return {
+    value: match ? Number(match[2]) : Number(stat.numero) || 0,
+    prefix: match?.[1] ?? '',
+    suffix: match?.[3] ?? '',
+    label: stat.etiqueta,
+    sublabel: '',
+  }
+}
+
 export default function NosotrosPage() {
+  const cms = useCmsSection<NosotrosCms>('nosotros', DEFAULT_CMS_DATA.nosotros as NosotrosCms)
+  const hitos = cms.timeline?.length
+    ? cms.timeline.map((h, i) => ({ year: h.anio, num: String(i + 1).padStart(2, '0'), texto: h.texto }))
+    : HITOS
+  const stats = cms.stats?.length ? cms.stats.map(parseStat) : undefined
+
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
 
@@ -90,7 +127,7 @@ export default function NosotrosPage() {
               </em>
             </h1>
             <p className="text-white/50 text-[15px] leading-[1.8] max-w-[520px]">
-              ELITE Nuvia nació con la misión de hacer que encontrar tu hogar ideal sea una experiencia transparente, profesional y sin complicaciones. Hoy somos el referente inmobiliario en 4 ciudades bolivianas.
+              {cms.mision ?? 'ELITE Nuvia nació con la misión de hacer que encontrar tu hogar ideal sea una experiencia transparente, profesional y sin complicaciones. Hoy somos el referente inmobiliario en 4 ciudades bolivianas.'}
             </p>
           </div>
         </div>
@@ -174,7 +211,7 @@ export default function NosotrosPage() {
             />
 
             <div className="grid grid-cols-5 gap-6">
-              {HITOS.map((h, i) => (
+              {hitos.map((h, i) => (
                 <motion.div
                   key={h.year}
                   className="relative pt-2"
@@ -209,7 +246,7 @@ export default function NosotrosPage() {
 
           {/* Mobile timeline */}
           <div className="md:hidden space-y-0">
-            {HITOS.map((h, i) => (
+            {hitos.map((h, i) => (
               <motion.div
                 key={h.year}
                 className="flex gap-5 pb-8"
@@ -223,7 +260,7 @@ export default function NosotrosPage() {
                   <div className="w-[12px] h-[12px] rounded-full border-2 border-gold flex-shrink-0 mt-1" style={{ background: '#060d08' }}>
                     <div className="absolute inset-[1px] rounded-full bg-gold opacity-70" style={{ position: 'relative', inset: '2px' }} />
                   </div>
-                  {i < HITOS.length - 1 && (
+                  {i < hitos.length - 1 && (
                     <div className="w-px flex-1 mt-2" style={{ background: 'rgba(201,168,76,0.15)', minHeight: '32px' }} />
                   )}
                 </div>
@@ -239,7 +276,7 @@ export default function NosotrosPage() {
       </div>
 
       {/* ─── STATS ─── */}
-      <StatsSection />
+      <StatsSection stats={stats} />
 
       {/* ─── EQUIPO ─── */}
       <div id="agentes">

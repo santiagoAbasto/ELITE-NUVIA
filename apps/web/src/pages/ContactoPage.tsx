@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useCmsSection } from '../hooks/useCmsSection'
+import { DEFAULT_CMS_DATA } from '../lib/cmsDefaults'
 
 const WA_NUMBER = import.meta.env.VITE_WA_NUMBER ?? '59170000000'
 
@@ -43,20 +45,37 @@ const IconCheck = () => (
   </svg>
 )
 
-const CONTACT_INFO: { icon: ReactNode; label: string; value: string; href: string | null }[] = [
-  { icon: <IconPhone />, label: 'Telefono', value: '+591 4 000 0000', href: 'tel:+59140000000' },
-  { icon: <IconMail />, label: 'Email', value: 'info@elitenuvia.bo', href: 'mailto:info@elitenuvia.bo' },
-  { icon: <IconMapPin />, label: 'Oficina principal', value: 'Cochabamba, Bolivia', href: null },
-  { icon: <IconClock />, label: 'Horario', value: 'Lun–Sab, 9:00–18:00', href: null },
-]
-
 const inputCls = 'w-full bg-white/04 border border-white/08 rounded-xl px-4 py-3.5 text-white text-[13.5px] placeholder-white/20 focus:outline-none focus:border-gold/40 focus:bg-white/06 transition-all'
+
+interface ContactoCms {
+  direccion?: string
+  telefono?: string
+  email?: string
+  horario?: string
+  whatsapp?: string
+}
+
+function digits(value: string) {
+  return value.replace(/\D/g, '')
+}
+
+function stripHtml(value: string) {
+  return value.replace(/<[^>]*>/g, '').trim()
+}
 
 export default function ContactoPage() {
   const [form, setForm] = useState({ nombre: '', telefono: '', email: '', mensaje: '' })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const cms = useCmsSection<ContactoCms>('contacto', DEFAULT_CMS_DATA.contacto as ContactoCms)
+  const whatsapp = digits(cms.whatsapp ?? WA_NUMBER)
+  const contactInfo: { icon: ReactNode; label: string; value: string; href: string | null }[] = [
+    { icon: <IconPhone />, label: 'Telefono', value: cms.telefono ?? '+591 4 000 0000', href: `tel:${digits(cms.telefono ?? '+59140000000')}` },
+    { icon: <IconMail />, label: 'Email', value: cms.email ?? 'info@elitenuvia.bo', href: `mailto:${cms.email ?? 'info@elitenuvia.bo'}` },
+    { icon: <IconMapPin />, label: 'Oficina principal', value: cms.direccion ?? 'Cochabamba, Bolivia', href: null },
+    { icon: <IconClock />, label: 'Horario', value: stripHtml(cms.horario ?? 'Lun-Sab, 9:00-18:00'), href: null },
+  ]
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -168,7 +187,7 @@ export default function ContactoPage() {
             <div className="bg-white/03 border border-white/06 rounded-2xl p-6">
               <div className="text-white/30 text-[10px] font-bold tracking-[2.5px] uppercase mb-5">Contacto directo</div>
               <div className="space-y-4">
-                {CONTACT_INFO.map(c => (
+                {contactInfo.map(c => (
                   <div key={c.label} className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-xl bg-gold/08 border border-gold/15 flex items-center justify-center flex-shrink-0 text-gold">
                       {c.icon}
@@ -188,7 +207,7 @@ export default function ContactoPage() {
 
             {/* WhatsApp CTA */}
             <a
-              href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hola! Me gustaria recibir informacion sobre propiedades con ELITE Nuvia.')}`}
+              href={`https://wa.me/${whatsapp}?text=${encodeURIComponent('Hola! Me gustaria recibir informacion sobre propiedades con ELITE Nuvia.')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 w-full p-5 rounded-2xl font-bold text-[14px] transition-all hover:opacity-90"

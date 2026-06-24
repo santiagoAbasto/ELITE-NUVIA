@@ -5,6 +5,8 @@ import { api } from '../lib/api'
 import { PropertyCard } from '../components/home/PropertyCard'
 import { PageHeader } from '../components/ui/PageHeader'
 import type { PropiedadPublica, TipoOperacion, TipoInmueble } from '@elite/types'
+import { useCmsSection } from '../hooks/useCmsSection'
+import { DEFAULT_CMS_DATA } from '../lib/cmsDefaults'
 
 const TABS: { value: TipoOperacion | ''; label: string }[] = [
   { value: '', label: 'Todos' },
@@ -22,13 +24,37 @@ const TIPOS: { value: TipoInmueble | ''; label: string }[] = [
   { value: 'LOCAL', label: 'Local comercial' },
 ]
 
-const CIUDADES = ['', 'Cochabamba', 'Santa Cruz', 'La Paz', 'Oruro']
-
 const selectCls =
   'bg-white/[0.06] border border-white/10 rounded-lg px-3.5 py-2 text-[12.5px] text-white focus:outline-none focus:ring-2 focus:ring-gold/30 appearance-none cursor-pointer transition-all w-full'
 
+interface PropiedadesCms {
+  eyebrow?: string
+  titulo?: string
+  subtitulo?: string
+  emptyTitulo?: string
+  emptyTexto?: string
+  ctaTexto?: string
+  operaciones?: { id: string; label: string; value: string }[]
+  ciudades?: string[]
+}
+
+function TitleWithAccent({ text }: { text: string }) {
+  const words = text.trim().split(/\s+/)
+  const last = words.pop()
+  if (!last) return <>{text}</>
+  return (
+    <>
+      {words.join(' ')}{' '}
+      <em className="not-italic text-gold" style={{ fontFamily: "'Playfair Display', serif" }}>
+        {last}
+      </em>
+    </>
+  )
+}
+
 export default function PropiedadesPage() {
   const [params, setParams] = useSearchParams()
+  const cms = useCmsSection<PropiedadesCms>('propiedades', DEFAULT_CMS_DATA.propiedades as PropiedadesCms)
 
   const tipo = (params.get('tipo') ?? '') as TipoOperacion | ''
   const tipoInmueble = (params.get('tipoInmueble') ?? '') as TipoInmueble | ''
@@ -73,7 +99,12 @@ export default function PropiedadesPage() {
     setParams(next)
   }
 
-  const tipoLabel = TABS.find(t => t.value === tipo)?.label ?? 'Todos'
+  const cmsTabs = TABS.map(tab => ({
+    ...tab,
+    label: cms.operaciones?.find(op => op.value === tab.value)?.label ?? tab.label,
+  }))
+  const ciudades = ['', ...(cms.ciudades?.length ? cms.ciudades : ['Cochabamba', 'Santa Cruz', 'La Paz', 'Oruro'])]
+  const tipoLabel = cmsTabs.find(t => t.value === tipo)?.label ?? 'Todos'
   const headerTitle = tipo ? (
     <>
       Propiedades en{' '}
@@ -82,12 +113,7 @@ export default function PropiedadesPage() {
       </em>
     </>
   ) : (
-    <>
-      Todas las{' '}
-      <em className="not-italic text-gold" style={{ fontFamily: "'Playfair Display', serif" }}>
-        Propiedades
-      </em>
-    </>
+    <TitleWithAccent text={cms.titulo ?? 'Todas las Propiedades'} />
   )
 
   const metaText = loading
@@ -97,7 +123,7 @@ export default function PropiedadesPage() {
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
       {/* Page header */}
-      <PageHeader eyebrow="Inmuebles" title={headerTitle} meta={metaText} />
+      <PageHeader eyebrow={cms.eyebrow ?? 'Inmuebles'} title={headerTitle} meta={metaText} />
 
       {/* Sticky filter bar */}
       <div
@@ -114,7 +140,7 @@ export default function PropiedadesPage() {
             {/* Tabs tipo con LayoutGroup + pill animado */}
             <LayoutGroup>
               <div className="flex gap-1 bg-white/[0.04] border border-white/[0.06] rounded-xl p-1 flex-shrink-0">
-                {TABS.map(t => (
+                {cmsTabs.map(t => (
                   <button
                     key={t.value}
                     onClick={() => setFilter('tipo', t.value)}
@@ -146,7 +172,7 @@ export default function PropiedadesPage() {
                   onChange={e => setFilter('ciudad', e.target.value)}
                   className={selectCls}
                 >
-                  {CIUDADES.map(c => (
+                  {ciudades.map(c => (
                     <option key={c} value={c} style={{ background: '#0d1a10' }}>
                       {c || 'Todas las ciudades'}
                     </option>
@@ -213,15 +239,15 @@ export default function PropiedadesPage() {
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
             </div>
-            <h2 className="text-white font-bold text-[22px] mb-2">Sin resultados</h2>
+            <h2 className="text-white font-bold text-[22px] mb-2">{cms.emptyTitulo ?? 'Sin resultados'}</h2>
             <p className="text-white/40 text-[14px] mb-6 max-w-xs mx-auto">
-              No encontramos propiedades con esos filtros. Intenta con otros criterios.
+              {cms.emptyTexto ?? 'No encontramos propiedades con esos filtros. Intenta con otros criterios.'}
             </p>
             <button
               onClick={() => setParams(new URLSearchParams())}
               className="inline-flex items-center gap-2 border border-gold/30 text-gold px-6 py-3 rounded-xl text-[13px] font-semibold hover:bg-gold/[0.08] transition-colors"
             >
-              Ver todas las propiedades →
+              {cms.ctaTexto ?? 'Ver todas las propiedades'} →
             </button>
           </div>
         ) : (

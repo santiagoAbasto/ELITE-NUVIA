@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useCmsSection } from '../hooks/useCmsSection'
+import { DEFAULT_CMS_DATA } from '../lib/cmsDefaults'
 
 const IconHome = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -89,7 +91,44 @@ const SERVICIOS: {
   },
 ]
 
+interface ServicioCms {
+  id: string
+  titulo: string
+  descripcion: string
+}
+
+interface ServiciosCms {
+  titulo?: string
+  subtitulo?: string
+  servicios?: ServicioCms[]
+}
+
+function stripHtml(value: string) {
+  return value.replace(/<[^>]*>/g, '').trim()
+}
+
+function serviceTitle(title: string) {
+  const words = title.trim().split(/\s+/)
+  const last = words.pop()
+  return (
+    <>
+      {words.join(' ')}{' '}
+      {last && <em className="not-italic text-gold" style={{ fontFamily: "'Playfair Display', serif" }}>{last}</em>}
+    </>
+  )
+}
+
 export default function ServiciosPage() {
+  const cms = useCmsSection<ServiciosCms>('servicios', DEFAULT_CMS_DATA.servicios as ServiciosCms)
+  const servicios = SERVICIOS.map((svc, i) => {
+    const cmsSvc = cms.servicios?.find(s => s.id === svc.tipo.toLowerCase()) ?? cms.servicios?.[i]
+    return {
+      ...svc,
+      titulo: cmsSvc?.titulo || svc.titulo,
+      descripcion: cmsSvc?.descripcion ? stripHtml(cmsSvc.descripcion) : svc.descripcion,
+    }
+  })
+
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
       {/* Header */}
@@ -101,17 +140,17 @@ export default function ServiciosPage() {
             <span className="text-gold text-[11px] font-bold tracking-[3px] uppercase">Lo que hacemos</span>
           </div>
           <h1 className="text-[40px] md:text-[48px] font-bold text-white leading-[1.05]" style={{ letterSpacing: '-0.03em' }}>
-            Nuestros <em className="not-italic text-gold" style={{ fontFamily: "'Playfair Display', serif" }}>Servicios</em>
+            {serviceTitle(cms.titulo ?? 'Nuestros Servicios')}
           </h1>
           <p className="text-white/45 text-[14px] mt-3 max-w-[520px] leading-relaxed">
-            Venta, alquiler y anticretico con respaldo profesional en Cochabamba, Santa Cruz, La Paz y Oruro.
+            {cms.subtitulo ?? 'Venta, alquiler y anticretico con respaldo profesional en Cochabamba, Santa Cruz, La Paz y Oruro.'}
           </p>
         </div>
       </div>
 
       {/* Servicios */}
       <div className="wrap space-y-8" style={{ paddingTop: '96px', paddingBottom: '128px' }}>
-        {SERVICIOS.map((svc, i) => (
+        {servicios.map((svc, i) => (
           <motion.div
             key={svc.tipo}
             className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10 items-start rounded-[20px] border p-8 md:p-12"

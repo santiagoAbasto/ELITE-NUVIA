@@ -20,7 +20,15 @@ function useCountUp(target: number, duration: number, active: boolean) {
   return count
 }
 
-const STATS = [
+export interface StatsSectionItem {
+  value: number
+  prefix: string
+  suffix: string
+  label: string
+  sublabel: string
+}
+
+const STATS: StatsSectionItem[] = [
   { value: 500, prefix: '+', suffix: '', label: 'Propiedades gestionadas', sublabel: 'en Bolivia' },
   { value: 8, prefix: '+', suffix: '', label: 'Años de experiencia', sublabel: 'en el mercado' },
   { value: 200, prefix: '+', suffix: '', label: 'Familias satisfechas', sublabel: 'y contando' },
@@ -28,7 +36,7 @@ const STATS = [
 ]
 
 function StatItem({
-  value, prefix, suffix, label, sublabel, inView, index,
+  value, prefix, suffix, label, sublabel, inView, index, total,
 }: {
   value: number
   prefix: string
@@ -37,6 +45,7 @@ function StatItem({
   sublabel: string
   inView: boolean
   index: number
+  total: number
 }) {
   const count = useCountUp(value, 1800, inView)
 
@@ -95,7 +104,7 @@ function StatItem({
       </motion.div>
 
       {/* Animated divider (not on last item) */}
-      {index < STATS.length - 1 && (
+      {index < total - 1 && (
         <motion.div
           className="absolute right-0 top-1/2 -translate-y-1/2 w-px origin-center"
           style={{ height: '60px', background: 'rgba(201,168,76,0.2)' }}
@@ -108,7 +117,7 @@ function StatItem({
   )
 }
 
-export function StatsSection() {
+export function StatsSection({ stats = STATS }: { stats?: StatsSectionItem[] }) {
   const ref = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, margin: '-100px' })
 
@@ -144,8 +153,8 @@ export function StatsSection() {
 
       <div className="wrap">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12">
-          {STATS.map((stat, i) => (
-            <StatItem key={stat.label} {...stat} inView={inView} index={i} />
+          {stats.map((stat, i) => (
+            <StatItem key={stat.label} {...stat} inView={inView} index={i} total={stats.length} />
           ))}
         </div>
       </div>

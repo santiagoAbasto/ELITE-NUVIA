@@ -4,15 +4,33 @@ import { Link } from 'react-router-dom'
 import { AnimatedHeading } from '../ui/AnimatedHeading'
 import { FadeIn } from '../ui/FadeIn'
 import { HeroTagCard } from './HeroTagCard'
+import { useCmsSection } from '../../hooks/useCmsSection'
+import { DEFAULT_CMS_DATA } from '../../lib/cmsDefaults'
 
-// Servido localmente desde /public/hero.mp4 — evita CORS del CDN externo
-const VIDEO_URL = '/hero.mp4'
 const WA_NUMBER = import.meta.env.VITE_WA_NUMBER ?? '59170000000'
+
+interface HeroCms {
+  videoUrl?: string
+  titulo?: string
+  subtitulo?: string
+  ctaTexto?: string
+  ctaUrl?: string
+  badgeTexto?: string
+}
+
+function getTitleLines(title: string) {
+  const [first, ...rest] = title.split(',')
+  if (rest.length === 0) return [title]
+  return [`${first},`, rest.join(',').trim()]
+}
 
 export function HeroSection() {
   const ref = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const { scrollY } = useScroll()
+  const cms = useCmsSection<HeroCms>('home', DEFAULT_CMS_DATA.home as HeroCms)
+  const titleLines = getTitleLines(cms.titulo ?? 'Tu hogar ideal, nuestra pasion.')
+  const subtitleLines = (cms.subtitulo ?? '').split('\n').filter(Boolean)
 
   useEffect(() => {
     const video = videoRef.current
@@ -44,6 +62,7 @@ export function HeroSection() {
         />
         {/* 2. Video — ENCIMA del gradiente (z-index 1), tapa el gradiente cuando carga */}
         <video
+          key={cms.videoUrl ?? '/hero.mp4'}
           ref={videoRef}
           autoPlay
           loop
@@ -53,7 +72,7 @@ export function HeroSection() {
           className="absolute inset-0 w-full h-full"
           style={{ objectFit: 'cover', zIndex: 1 }}
         >
-          <source src={VIDEO_URL} type="video/mp4" />
+          <source src={cms.videoUrl ?? '/hero.mp4'} type="video/mp4" />
         </video>
         {/* 3. Overlay de color muy sutil sobre el video (z-index 2) — mantiene coherencia de marca */}
         <div
@@ -79,32 +98,36 @@ export function HeroSection() {
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-px bg-gold" />
                   <span className="text-gold text-[11px] font-semibold tracking-[3px] uppercase">
-                    Inmobiliaria Premium Bolivia
+                    {cms.badgeTexto ?? 'Inmobiliaria Premium Bolivia'}
                   </span>
                 </div>
               </FadeIn>
 
               <AnimatedHeading
-                lines={['Tu hogar ideal,', 'nuestra pasion.']}
+                lines={titleLines}
                 className="text-[42px] md:text-[56px] lg:text-[68px] font-bold leading-[1.03] mb-5"
                 style={{ letterSpacing: '-0.035em', color: '#fff' }}
               />
 
               <FadeIn delay={900} y={0}>
                 <p className="text-white/55 text-base md:text-lg font-light mb-8 leading-relaxed">
-                  Venta · Alquiler · Anticretico
-                  <br />
-                  <span className="text-white/40">Cochabamba · Santa Cruz · La Paz · Oruro</span>
+                  {subtitleLines[0] ?? 'Venta · Alquiler · Anticretico'}
+                  {subtitleLines[1] && (
+                    <>
+                      <br />
+                      <span className="text-white/40">{subtitleLines.slice(1).join(' · ')}</span>
+                    </>
+                  )}
                 </p>
               </FadeIn>
 
               <FadeIn delay={1200} y={20}>
                 <div className="flex flex-wrap gap-3">
                   <Link
-                    to="/propiedades"
+                    to={cms.ctaUrl ?? '/propiedades'}
                     className="bg-gold text-green-deep px-7 py-3.5 rounded-lg text-[13px] font-bold inline-flex items-center gap-2 hover:bg-gold-light transition-colors"
                   >
-                    Explorar propiedades
+                    {cms.ctaTexto ?? 'Explorar propiedades'}
                   </Link>
                   <a
                     href={`https://wa.me/${WA_NUMBER}`}

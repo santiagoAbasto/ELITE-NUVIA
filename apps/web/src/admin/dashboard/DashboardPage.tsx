@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
-import { adminApi } from '../shared/adminApi'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useAdminAuth } from '../context/AdminAuthContext'
+import { adminApi } from '../shared/adminApi'
 
 interface PropiedadesCount { venta: number; alquiler: number; anticretico: number; total: number }
 interface Lead { id: string; nombre: string; estado: string; temperatura: string; updatedAt: string; agente?: { nombre: string; apellido: string } }
@@ -11,19 +11,101 @@ interface Evento { id: string; titulo: string; tipo: string; inicio: string }
 const LEAD_ESTADOS = ['NUEVO', 'EN_CONTACTO', 'INTERESADO', 'NEGOCIACION', 'CERRADO', 'PERDIDO']
 const CAP_ESTADOS = ['EN_NEGOCIACION', 'CAPTADA', 'PUBLICADA', 'EN_CIERRE', 'CERRADA', 'EXPIRADA']
 const ESTADO_COLOR: Record<string, string> = {
-  NUEVO: '#52525b', EN_CONTACTO: '#2563eb', INTERESADO: '#d97706',
-  NEGOCIACION: '#ea580c', CERRADO: '#16a34a', PERDIDO: '#dc2626',
-  EN_NEGOCIACION: '#52525b', CAPTADA: '#2563eb', PUBLICADA: '#d97706',
-  EN_CIERRE: '#ea580c', EXPIRADA: '#dc2626',
+  NUEVO: '#8a9080',
+  EN_CONTACTO: '#74a3ff',
+  INTERESADO: '#C9A84C',
+  NEGOCIACION: '#E8C96A',
+  CERRADO: '#4ade80',
+  PERDIDO: '#fb7185',
+  EN_NEGOCIACION: '#8a9080',
+  CAPTADA: '#74a3ff',
+  PUBLICADA: '#C9A84C',
+  EN_CIERRE: '#E8C96A',
+  EXPIRADA: '#fb7185',
+  CALIENTE: '#fb7185',
+  TIBIO: '#C9A84C',
+  FRIO: '#8a9080',
 }
 
-function StatCard({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
+function formatState(value: string) {
+  return value.replace(/_/g, ' ')
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString('es-BO', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function DashboardSkeleton() {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-      <p className="text-xs text-zinc-500 uppercase tracking-wider mb-2">{label}</p>
-      <p className="text-3xl font-bold text-white">{value}</p>
-      {sub && <p className="text-xs text-zinc-500 mt-1">{sub}</p>}
+    <div className="mx-auto max-w-[1520px] space-y-5">
+      <div className="h-36 rounded-[28px] border border-gold/[0.12] bg-white/[0.035]" />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-36 rounded-3xl border border-gold/[0.10] bg-white/[0.035]" />
+        ))}
+      </div>
+      <div className="grid gap-4 xl:grid-cols-2">
+        <div className="h-72 rounded-3xl border border-gold/[0.10] bg-white/[0.035]" />
+        <div className="h-72 rounded-3xl border border-gold/[0.10] bg-white/[0.035]" />
+      </div>
     </div>
+  )
+}
+
+function MetricCard({ label, value, sub, tone }: { label: string; value: number | string; sub: string; tone: 'gold' | 'green' | 'blue' | 'white' }) {
+  const toneClass = {
+    gold: 'text-gold bg-gold/[0.12] border-gold/[0.22]',
+    green: 'text-emerald-300 bg-emerald-400/[0.10] border-emerald-400/[0.18]',
+    blue: 'text-sky-300 bg-sky-400/[0.10] border-sky-400/[0.18]',
+    white: 'text-white bg-white/[0.06] border-white/[0.12]',
+  }[tone]
+
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-gold/[0.11] bg-[#0b130d]/[0.86] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.20)]">
+      <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-gold/[0.32] to-transparent" />
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[12px] font-semibold text-white/[0.46]">{label}</p>
+          <p className="mt-3 text-[36px] font-black leading-none tracking-[-0.05em] text-white">{value}</p>
+        </div>
+        <div className={`grid h-10 w-10 place-items-center rounded-2xl border ${toneClass}`}>
+          <div className="h-2.5 w-2.5 rounded-full bg-current" />
+        </div>
+      </div>
+      <p className="mt-4 text-[12px] leading-relaxed text-white/[0.40]">{sub}</p>
+    </div>
+  )
+}
+
+function ChartPanel({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="rounded-[28px] border border-gold/[0.11] bg-[#0b130d]/[0.86] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.20)]">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-[15px] font-bold text-white">{title}</h2>
+        <span className="rounded-full border border-white/[0.08] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/[0.34]">
+          En vivo
+        </span>
+      </div>
+      {children}
+    </section>
+  )
+}
+
+function StatusPill({ value }: { value: string }) {
+  const color = ESTADO_COLOR[value] ?? '#8a9080'
+  return (
+    <span
+      className="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.08em]"
+      style={{ color, background: `${color}18`, border: `1px solid ${color}33` }}
+    >
+      {formatState(value)}
+    </span>
   )
 }
 
@@ -49,142 +131,156 @@ export default function DashboardPage() {
         setPropCount(count)
         setLeads(leadsRes.data)
         setCaptaciones(capRes.data)
-        setEventos(eventosRes.slice(0, 5))
+        setEventos(eventosRes.slice(0, 6))
       })
       .catch(() => { /* silent */ })
       .finally(() => setLoading(false))
   }, [])
 
+  const activeLeads = useMemo(() => leads.filter(l => !['CERRADO', 'PERDIDO'].includes(l.estado)).length, [leads])
+  const hotLeads = useMemo(() => leads.filter(l => l.temperatura === 'CALIENTE').length, [leads])
+  const publishedCaptaciones = useMemo(() => captaciones.filter(c => c.estado === 'PUBLICADA').length, [captaciones])
+
   const leadChartData = LEAD_ESTADOS.map(estado => ({
-    name: estado.replace('_', ' '),
+    name: formatState(estado),
     valor: leads.filter(l => l.estado === estado).length,
     estado,
   }))
 
   const capChartData = CAP_ESTADOS.map(estado => ({
-    name: estado.replace('_', ' '),
+    name: formatState(estado),
     valor: captaciones.filter(c => c.estado === estado).length,
     estado,
   }))
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
-  }
+  if (loading) return <DashboardSkeleton />
 
   return (
-    <div className="space-y-6 max-w-7xl">
-      <div>
-        <h1 className="text-xl font-semibold text-white">Dashboard</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
-          Bienvenido, {user?.nombre}
-        </p>
+    <div className="mx-auto max-w-[1520px] space-y-6">
+      <section className="overflow-hidden rounded-[30px] border border-gold/[0.14] bg-[#0b130d]/[0.90] shadow-[0_28px_90px_rgba(0,0,0,0.28)]">
+        <div className="grid gap-6 p-6 xl:grid-cols-[1fr_420px] xl:items-end">
+          <div>
+            <span className="rounded-full border border-gold/[0.18] bg-gold/[0.08] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-gold">
+              Panel operativo
+            </span>
+            <h1 className="mt-4 max-w-3xl text-[34px] font-black leading-[1.04] tracking-[-0.045em] text-white md:text-[46px]">
+              Bienvenido, {user?.nombre}. El pulso comercial está listo para revisar.
+            </h1>
+            <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-white/[0.48]">
+              Propiedades públicas, captaciones, leads y agenda se leen desde la API para que el equipo vea el estado real del negocio.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 rounded-3xl border border-white/[0.08] bg-white/[0.035] p-3">
+            <div>
+              <p className="text-[24px] font-black tracking-[-0.04em] text-gold">{propCount?.venta ?? 0}</p>
+              <p className="text-[11px] text-white/[0.42]">Venta</p>
+            </div>
+            <div>
+              <p className="text-[24px] font-black tracking-[-0.04em] text-gold">{propCount?.alquiler ?? 0}</p>
+              <p className="text-[11px] text-white/[0.42]">Alquiler</p>
+            </div>
+            <div>
+              <p className="text-[24px] font-black tracking-[-0.04em] text-gold">{propCount?.anticretico ?? 0}</p>
+              <p className="text-[11px] text-white/[0.42]">Anticretico</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard label="Propiedades totales" value={propCount?.total ?? 0} sub="Inventario disponible para consulta pública y CRM." tone="gold" />
+        <MetricCard label="Leads activos" value={activeLeads} sub={`${hotLeads} lead${hotLeads === 1 ? '' : 's'} con temperatura caliente.`} tone="green" />
+        <MetricCard label="Captaciones" value={captaciones.length} sub={`${publishedCaptaciones} publicadas dentro del flujo comercial.`} tone="blue" />
+        <MetricCard label="Agenda semanal" value={eventos.length} sub="Eventos próximos entre visitas, llamadas y cierres." tone="white" />
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Propiedades totales" value={propCount?.total ?? 0} />
-        <StatCard label="En venta" value={propCount?.venta ?? 0} />
-        <StatCard label="En alquiler" value={propCount?.alquiler ?? 0} />
-        <StatCard label="Leads activos" value={leads.filter(l => !['CERRADO', 'PERDIDO'].includes(l.estado)).length} />
-      </div>
-
-      {/* Charts row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-          <p className="text-sm font-medium text-white mb-4">Leads por estado</p>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={leadChartData} barSize={20}>
-              <XAxis dataKey="name" tick={{ fill: '#71717a', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#71717a', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
+      <div className="grid gap-4 xl:grid-cols-2">
+        <ChartPanel title="Leads por estado">
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={leadChartData} barSize={24}>
+              <XAxis dataKey="name" tick={{ fill: 'rgba(245,240,230,0.38)', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: 'rgba(245,240,230,0.34)', fontSize: 10 }} axisLine={false} tickLine={false} width={28} />
               <Tooltip
-                contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, fontSize: 12 }}
-                cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                contentStyle={{ background: '#0c140e', border: '1px solid rgba(201,168,76,0.18)', borderRadius: 14, fontSize: 12, color: '#fff' }}
+                cursor={{ fill: 'rgba(201,168,76,0.055)' }}
               />
-              <Bar dataKey="valor" radius={[4, 4, 0, 0]}>
-                {leadChartData.map(d => <Cell key={d.estado} fill={ESTADO_COLOR[d.estado] ?? '#52525b'} />)}
+              <Bar dataKey="valor" radius={[8, 8, 2, 2]}>
+                {leadChartData.map(d => <Cell key={d.estado} fill={ESTADO_COLOR[d.estado] ?? '#8a9080'} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </ChartPanel>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-          <p className="text-sm font-medium text-white mb-4">Captaciones por estado</p>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={capChartData} barSize={20}>
-              <XAxis dataKey="name" tick={{ fill: '#71717a', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#71717a', fontSize: 10 }} axisLine={false} tickLine={false} width={24} />
+        <ChartPanel title="Captaciones por estado">
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={capChartData} barSize={24}>
+              <XAxis dataKey="name" tick={{ fill: 'rgba(245,240,230,0.38)', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: 'rgba(245,240,230,0.34)', fontSize: 10 }} axisLine={false} tickLine={false} width={28} />
               <Tooltip
-                contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, fontSize: 12 }}
-                cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                contentStyle={{ background: '#0c140e', border: '1px solid rgba(201,168,76,0.18)', borderRadius: 14, fontSize: 12, color: '#fff' }}
+                cursor={{ fill: 'rgba(201,168,76,0.055)' }}
               />
-              <Bar dataKey="valor" radius={[4, 4, 0, 0]}>
-                {capChartData.map(d => <Cell key={d.estado} fill={ESTADO_COLOR[d.estado] ?? '#52525b'} />)}
+              <Bar dataKey="valor" radius={[8, 8, 2, 2]}>
+                {capChartData.map(d => <Cell key={d.estado} fill={ESTADO_COLOR[d.estado] ?? '#8a9080'} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </ChartPanel>
       </div>
 
-      {/* Bottom row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Upcoming events */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-          <p className="text-sm font-medium text-white mb-4">Próximos eventos</p>
-          {eventos.length === 0 ? (
-            <p className="text-sm text-zinc-500">Sin eventos próximos</p>
+      <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+        <section className="rounded-[28px] border border-gold/[0.11] bg-[#0b130d]/[0.86] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.20)]">
+          <h2 className="text-[15px] font-bold text-white">Próximos eventos</h2>
+          <div className="mt-4 space-y-3">
+            {eventos.length === 0 ? (
+              <p className="rounded-2xl border border-white/[0.08] bg-white/[0.035] px-4 py-6 text-center text-sm text-white/[0.42]">
+                Sin eventos próximos
+              </p>
+            ) : (
+              eventos.map(e => (
+                <div key={e.id} className="flex items-start gap-3 rounded-2xl border border-white/[0.07] bg-white/[0.03] p-3">
+                  <div className="mt-1 grid h-8 w-8 flex-shrink-0 place-items-center rounded-xl border border-gold/[0.16] bg-gold/[0.08] text-gold">
+                    <div className="h-2 w-2 rounded-full bg-current" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-semibold text-white">{e.titulo}</p>
+                    <p className="mt-0.5 text-[11px] text-white/[0.38]">{formatDate(e.inicio)} · {formatState(e.tipo)}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-[28px] border border-gold/[0.11] bg-[#0b130d]/[0.86] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.20)]">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-[15px] font-bold text-white">Últimos leads</h2>
+            <span className="text-[12px] font-semibold text-white/[0.38]">{leads.length} registros</span>
+          </div>
+          {leads.length === 0 ? (
+            <p className="rounded-2xl border border-white/[0.08] bg-white/[0.035] px-4 py-6 text-center text-sm text-white/[0.42]">
+              Sin leads registrados
+            </p>
           ) : (
-            <div className="space-y-3">
-              {eventos.map(e => (
-                <div key={e.id} className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-white leading-snug">{e.titulo}</p>
-                    <p className="text-xs text-zinc-500 mt-0.5">
-                      {new Date(e.inicio).toLocaleDateString('es-BO', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+            <div className="overflow-hidden rounded-2xl border border-white/[0.08]">
+              {leads.slice(0, 6).map(l => (
+                <div key={l.id} className="flex flex-col gap-3 border-b border-white/[0.07] bg-white/[0.025] px-4 py-3 last:border-0 md:flex-row md:items-center md:justify-between">
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-semibold text-white">{l.nombre}</p>
+                    <p className="mt-0.5 text-[11px] text-white/[0.36]">
+                      {l.agente ? `${l.agente.nombre} ${l.agente.apellido}` : 'Sin agente asignado'}
                     </p>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Recent leads */}
-        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-          <p className="text-sm font-medium text-white mb-4">Últimos leads</p>
-          {leads.length === 0 ? (
-            <p className="text-sm text-zinc-500">Sin leads registrados</p>
-          ) : (
-            <div className="space-y-2">
-              {leads.slice(0, 5).map(l => (
-                <div key={l.id} className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0">
-                  <div>
-                    <p className="text-sm text-white font-medium">{l.nombre}</p>
-                    {l.agente && (
-                      <p className="text-xs text-zinc-500">{l.agente.nombre} {l.agente.apellido}</p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                      l.temperatura === 'CALIENTE' ? 'bg-red-500/10 text-red-400' :
-                      l.temperatura === 'TIBIO' ? 'bg-amber-500/10 text-amber-400' :
-                      'bg-zinc-700/50 text-zinc-400'
-                    }`}>
-                      {l.temperatura}
-                    </span>
-                    <span className="text-[10px] text-zinc-500">
-                      {l.estado.replace('_', ' ')}
-                    </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <StatusPill value={l.temperatura} />
+                    <StatusPill value={l.estado} />
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </section>
       </div>
     </div>
   )

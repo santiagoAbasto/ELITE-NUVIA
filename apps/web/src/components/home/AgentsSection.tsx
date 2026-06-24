@@ -4,34 +4,55 @@ import { AgentCard } from './AgentCard'
 import { SectionEyebrow } from '../ui/SectionEyebrow'
 import { FadeInView } from '../ui/FadeIn'
 import { useAgentes } from '../../hooks/useAgentes'
+import { useCmsSection } from '../../hooks/useCmsSection'
+import { DEFAULT_CMS_DATA } from '../../lib/cmsDefaults'
+
+interface AgentesCms {
+  eyebrow?: string
+  titulo?: string
+  subtitulo?: string
+}
+
+function TitleWithAccent({ text }: { text: string }) {
+  const words = text.trim().split(/\s+/)
+  const accented = words.length > 2 ? words.splice(2, 1)[0] : words.pop()
+  return (
+    <>
+      {words.slice(0, 2).join(' ')}{' '}
+      {accented && (
+        <em
+          className="not-italic"
+          style={{
+            color: 'var(--green-main)',
+            fontFamily: "'Playfair Display', serif",
+          }}
+        >
+          {accented}
+        </em>
+      )}{' '}
+      {words.slice(2).join(' ')}
+    </>
+  )
+}
 
 export function AgentsSection() {
   const { data: agentes, loading } = useAgentes()
   const containerRef = useRef<HTMLDivElement>(null)
+  const cms = useCmsSection<AgentesCms>('agentes', DEFAULT_CMS_DATA.agentes as AgentesCms)
 
   return (
     <section className="py-24 overflow-hidden" style={{ background: 'var(--cream)' }}>
       <div className="wrap">
         <FadeInView className="mb-10">
-          <SectionEyebrow label="Nuestro equipo" />
+          <SectionEyebrow label={cms.eyebrow ?? 'Nuestro equipo'} />
           <h2
             className="text-[38px] font-bold mt-1"
             style={{ color: 'var(--text-dark)', letterSpacing: '-0.02em' }}
           >
-            Un equipo{' '}
-            <em
-              className="not-italic"
-              style={{
-                color: 'var(--green-main)',
-                fontFamily: "'Playfair Display', serif",
-              }}
-            >
-              comprometido
-            </em>{' '}
-            contigo
+            <TitleWithAccent text={cms.titulo ?? 'Un equipo comprometido contigo'} />
           </h2>
           <p className="text-[var(--text-muted)] text-[14px] mt-2 max-w-[480px]">
-            Profesionales con anos de experiencia en el mercado inmobiliario boliviano. Arrastra para ver mas.
+            {cms.subtitulo ?? 'Profesionales con anos de experiencia en el mercado inmobiliario boliviano. Arrastra para ver mas.'}
           </p>
         </FadeInView>
       </div>

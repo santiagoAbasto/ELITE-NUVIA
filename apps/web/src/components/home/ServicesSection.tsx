@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { ParticlesCanvas } from './ParticlesCanvas'
 import { SectionEyebrow } from '../ui/SectionEyebrow'
+import { useCmsSection } from '../../hooks/useCmsSection'
+import { DEFAULT_CMS_DATA } from '../../lib/cmsDefaults'
 
 const IconHome = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -65,9 +67,39 @@ const SERVICES: {
   },
 ]
 
-const TITLE_WORDS = ['Nuestros', 'Servicios']
+interface ServicioCms {
+  id: string
+  titulo: string
+  descripcion: string
+  imagenUrl?: string
+}
+
+interface ServiciosCms {
+  titulo?: string
+  subtitulo?: string
+  servicios?: ServicioCms[]
+}
+
+function stripHtml(value: string) {
+  return value.replace(/<[^>]*>/g, '').trim()
+}
+
+function titleWords(title: string) {
+  return title.trim().split(/\s+/).filter(Boolean)
+}
 
 export function ServicesSection() {
+  const cms = useCmsSection<ServiciosCms>('servicios', DEFAULT_CMS_DATA.servicios as ServiciosCms)
+  const words = titleWords(cms.titulo ?? 'Nuestros Servicios')
+  const servicios = SERVICES.map((svc, i) => {
+    const cmsSvc = cms.servicios?.find(s => s.id === svc.name.toLowerCase()) ?? cms.servicios?.[i]
+    return {
+      ...svc,
+      title: cmsSvc?.titulo || svc.title,
+      desc: cmsSvc?.descripcion ? stripHtml(cmsSvc.descripcion) : svc.desc,
+    }
+  })
+
   return (
     <section className="relative py-24 overflow-hidden" style={{ background: 'var(--green-deep)' }}>
       <ParticlesCanvas />
@@ -99,10 +131,10 @@ export function ServicesSection() {
             className="text-[38px] font-bold text-white mt-2"
             style={{ letterSpacing: '-0.02em' }}
           >
-            {TITLE_WORDS.map((word, i) => (
+            {words.map((word, i) => (
               <motion.span
                 key={word}
-                className={`inline-block ${i < TITLE_WORDS.length - 1 ? 'mr-3' : ''}`}
+                className={`inline-block ${i < words.length - 1 ? 'mr-3' : ''}`}
                 initial={{ opacity: 0, y: 30, filter: 'blur(12px)' }}
                 whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 viewport={{ once: true }}
@@ -112,7 +144,7 @@ export function ServicesSection() {
                   ease: [0.22, 1, 0.36, 1],
                 }}
               >
-                {i === TITLE_WORDS.length - 1 ? (
+                  {i === words.length - 1 ? (
                   <em
                     className="not-italic text-gold"
                     style={{ fontFamily: "'Playfair Display', serif" }}
@@ -133,13 +165,13 @@ export function ServicesSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            Soluciones inmobiliarias a tu medida. Respaldo y confianza en cada etapa de tu vida.
+            {cms.subtitulo ?? 'Soluciones inmobiliarias a tu medida. Respaldo y confianza en cada etapa de tu vida.'}
           </motion.p>
         </div>
 
         {/* Service cards with dramatic 3D entrance */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5" style={{ perspective: '1000px' }}>
-          {SERVICES.map((svc, i) => (
+          {servicios.map((svc, i) => (
             <motion.div
               key={svc.name}
               className="relative border rounded-[18px] p-10 overflow-hidden"
