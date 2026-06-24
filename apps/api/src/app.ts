@@ -19,6 +19,7 @@ import { adminLeadsRouter } from './routes/adminLeads.js'
 import { adminEventosRouter } from './routes/adminEventos.js'
 import { adminNotificacionesRouter } from './routes/adminNotificaciones.js'
 import { adminUploadRouter } from './routes/adminUpload.js'
+import { adminReportesRouter } from './routes/adminReportes.js'
 
 export function createApp() {
   const app = express()
@@ -57,6 +58,7 @@ export function createApp() {
   app.use('/api/v1/admin/leads', verifyJWT, adminLeadsRouter)
   app.use('/api/v1/admin/eventos', verifyJWT, adminEventosRouter)
   app.use('/api/v1/admin/notificaciones', verifyJWT, adminNotificacionesRouter)
+  app.use('/api/v1/admin/reportes', verifyJWT, adminReportesRouter)
 
   app.use(errorHandler)
   return app

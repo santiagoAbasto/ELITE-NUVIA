@@ -16,6 +16,7 @@ const LeadDetail        = lazy(() => import('./crm/leads/LeadDetail'))
 const CaptacionesPage   = lazy(() => import('./crm/captaciones/CaptacionesPage'))
 const CaptacionDetail   = lazy(() => import('./crm/captaciones/CaptacionDetail'))
 const AgendaPage        = lazy(() => import('./crm/agenda/AgendaPage'))
+const ReportesPage      = lazy(() => import('./crm/reportes/ReportesPage'))
 
 function Spinner() {
   return (
@@ -78,7 +79,9 @@ function AdminRoutes() {
         {/* Agenda */}
         <Route path="agenda" element={<S><AgendaPage /></S>} />
 
-        {/* Reportes — plan 10 */}
+        {/* Reportes */}
+        <Route path="reportes" element={<S><ReportesPage /></S>} />
+
         <Route path="*" element={<Placeholder />} />
       </Route>
     </Routes>
