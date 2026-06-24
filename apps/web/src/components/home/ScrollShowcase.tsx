@@ -51,88 +51,20 @@ const SLIDES = [
 
 type Slide = (typeof SLIDES)[number]
 
+const PATTERN_IMAGES: Record<string, string> = {
+  casa: '/showcase-casa.png',
+  departamento: '/showcase-departamento.png',
+  anticretico: '/showcase-anticretico.png',
+}
+
 function PropertyVisual({ pattern }: { pattern: string }) {
-  if (pattern === 'departamento') {
-    const rows = [0, 1, 2, 3, 4]
-    const cols = [0, 1, 2]
-    return (
-      <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        <rect width="400" height="300" fill="url(#bg2)" rx="12" />
-        <rect x="100" y="50" width="200" height="230" fill="rgba(13,59,39,0.6)" rx="4" />
-        {rows.map(row =>
-          cols.map(col => (
-            <rect
-              key={`${row}-${col}`}
-              x={120 + col * 56}
-              y={70 + row * 38}
-              width="40"
-              height="24"
-              fill={col % 2 === 0 ? 'rgba(255,255,255,0.18)' : 'rgba(201,168,76,0.25)'}
-              rx="2"
-            />
-          ))
-        )}
-        <rect x="100" y="50" width="200" height="25" fill="rgba(201,168,76,0.15)" rx="4" />
-        <rect x="130" y="30" width="140" height="25" fill="rgba(13,59,39,0.8)" rx="3" />
-        <rect x="175" y="240" width="50" height="40" fill="rgba(201,168,76,0.3)" rx="2" />
-        <circle cx="195" cy="260" r="3" fill="rgba(201,168,76,0.8)" />
-        <defs>
-          <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#091a10" />
-            <stop offset="100%" stopColor="#0D3B27" />
-          </linearGradient>
-        </defs>
-      </svg>
-    )
-  }
-
-  if (pattern === 'anticretico') {
-    return (
-      <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        <rect width="400" height="300" fill="url(#bg3)" rx="12" />
-        <circle cx="200" cy="130" r="55" stroke="rgba(201,168,76,0.3)" strokeWidth="1.5" fill="none" />
-        <circle cx="200" cy="130" r="40" stroke="rgba(201,168,76,0.5)" strokeWidth="1" fill="rgba(201,168,76,0.06)" />
-        <circle cx="200" cy="115" r="18" stroke="#C9A84C" strokeWidth="2" fill="none" />
-        <circle cx="200" cy="115" r="7" fill="rgba(201,168,76,0.4)" />
-        <rect x="198" y="130" width="4" height="30" rx="2" fill="#C9A84C" />
-        <rect x="202" y="148" width="10" height="3.5" rx="1.5" fill="#C9A84C" />
-        <rect x="202" y="155" width="8" height="3.5" rx="1.5" fill="#C9A84C" />
-        <text x="200" y="220" textAnchor="middle" fill="rgba(201,168,76,0.7)" fontSize="28" fontWeight="800" fontFamily="Inter">100%</text>
-        <text x="200" y="245" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="11" fontFamily="Inter" letterSpacing="3">RECUPERABLE</text>
-        <path d="M 80 130 Q 110 100 140 130 Q 110 160 80 130Z" stroke="rgba(201,168,76,0.2)" strokeWidth="1" fill="none" />
-        <path d="M 320 130 Q 290 100 260 130 Q 290 160 320 130Z" stroke="rgba(201,168,76,0.2)" strokeWidth="1" fill="none" />
-        <defs>
-          <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0d0a1e" />
-            <stop offset="100%" stopColor="#1a1035" />
-          </linearGradient>
-        </defs>
-      </svg>
-    )
-  }
-
-  // default: casa
   return (
-    <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <rect width="400" height="300" fill="url(#bg1)" rx="12" />
-      <polygon points="200,60 110,140 290,140" fill="rgba(201,168,76,0.4)" stroke="rgba(201,168,76,0.6)" strokeWidth="1.5" />
-      <rect x="120" y="140" width="160" height="100" fill="rgba(13,59,39,0.8)" rx="2" />
-      <rect x="170" y="175" width="60" height="65" fill="rgba(201,168,76,0.3)" rx="2" />
-      <rect x="130" y="155" width="35" height="30" fill="rgba(255,255,255,0.15)" rx="2" />
-      <rect x="235" y="155" width="35" height="30" fill="rgba(255,255,255,0.15)" rx="2" />
-      <rect x="310" y="180" width="70" height="50" fill="rgba(125,211,176,0.3)" rx="6" stroke="rgba(125,211,176,0.5)" strokeWidth="1" />
-      <ellipse cx="345" cy="205" rx="20" ry="12" fill="rgba(125,211,176,0.2)" />
-      <circle cx="95" cy="200" r="20" fill="rgba(26,92,58,0.6)" />
-      <circle cx="75" cy="215" r="14" fill="rgba(26,92,58,0.5)" />
-      <circle cx="115" cy="218" r="12" fill="rgba(13,59,39,0.7)" />
-      <defs>
-        <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0A2416" />
-          <stop offset="50%" stopColor="#0D3B27" />
-          <stop offset="100%" stopColor="#091a0f" />
-        </linearGradient>
-      </defs>
-    </svg>
+    <img
+      src={PATTERN_IMAGES[pattern] ?? PATTERN_IMAGES.casa}
+      alt={pattern}
+      className="w-full h-full object-cover"
+      draggable={false}
+    />
   )
 }
 

@@ -160,8 +160,10 @@ export default function ServiciosPage() {
         ))}
       </div>
 
-      {/* Separador */}
-      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)' }} />
+      {/* Separador — con espacio arriba y abajo para no quedar pegado al texto */}
+      <div className="wrap">
+        <div className="my-16 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)' }} />
+      </div>
 
       {/* CTA bottom */}
       <div style={{ background: '#060e08' }}>

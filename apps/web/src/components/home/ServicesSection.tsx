@@ -175,27 +175,62 @@ export function ServicesSection() {
                   delay: i * 0.18,
                 },
               }}
-              whileHover={{ rotateY: 3, rotateX: -2, scale: 1.02 }}
+              whileHover="hover"
             >
+              {/* Glow dorado que aparece al hover */}
+              <motion.div
+                className="absolute inset-0 pointer-events-none rounded-[18px]"
+                style={{ background: 'radial-gradient(circle at 50% 0%, rgba(201,168,76,0.14) 0%, transparent 65%)' }}
+                initial="rest"
+                variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              />
+              {/* Sombra premium al hover */}
+              <motion.div
+                className="absolute inset-0 pointer-events-none rounded-[18px]"
+                initial="rest"
+                variants={{
+                  rest: { boxShadow: '0 0 0 rgba(0,0,0,0)' },
+                  hover: { boxShadow: '0 28px 64px rgba(0,0,0,0.4), 0 10px 26px rgba(201,168,76,0.10)' },
+                }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              />
+              <motion.div
+                className="relative"
+                initial="rest"
+                variants={{ rest: { scale: 1, y: 0 }, hover: { scale: 1.02, y: -4 } }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              >
               <div
                 className="absolute top-0 left-6 right-6 h-px"
                 style={{ background: 'linear-gradient(90deg, transparent, #C9A84C, transparent)' }}
               />
-              <div className="w-14 h-14 rounded-[14px] border border-gold/20 bg-gold/10 flex items-center justify-center mb-6 text-gold">
+              <motion.div
+                className="w-14 h-14 rounded-[14px] border border-gold/20 bg-gold/10 flex items-center justify-center mb-6 text-gold"
+                initial="rest"
+                variants={{ rest: { scale: 1, borderColor: 'rgba(201,168,76,0.2)' }, hover: { scale: 1.08, borderColor: 'rgba(201,168,76,0.45)' } }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              >
                 {svc.icon}
-              </div>
+              </motion.div>
               <div className="text-[11px] text-gold font-bold tracking-[3px] uppercase mb-2.5">{svc.name}</div>
               <h3 className="text-[26px] font-bold text-white mb-3.5 leading-tight">{svc.title}</h3>
               <p className="text-white/50 text-[13.5px] leading-[1.7] mb-7">{svc.desc}</p>
               <a href={svc.href} className="flex items-center gap-2 text-gold text-[12.5px] font-semibold">
-                <div className="w-7 h-7 rounded-full border border-gold/30 flex items-center justify-center text-xs">
+                <motion.div
+                  className="w-7 h-7 rounded-full border border-gold/30 flex items-center justify-center text-xs"
+                  initial="rest"
+                  variants={{ rest: { x: 0, backgroundColor: 'rgba(201,168,76,0)', borderColor: 'rgba(201,168,76,0.3)' }, hover: { x: 4, backgroundColor: 'rgba(201,168,76,0.15)', borderColor: 'rgba(201,168,76,0.55)' } }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                >
                   →
-                </div>
+                </motion.div>
                 {svc.cta}
               </a>
               {svc.hint && (
                 <div className="text-white/25 text-[11px] italic mt-2">{svc.hint}</div>
               )}
+              </motion.div>
             </motion.div>
           ))}
         </div>

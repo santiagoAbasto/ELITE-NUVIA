@@ -43,10 +43,12 @@ export function Navbar() {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`text-[13.5px] font-normal transition-colors duration-200 relative group ${location.pathname === link.to ? 'text-gold' : 'text-white/65 hover:text-white'}`}
+                  className={`text-[13.5px] font-normal transition-all duration-300 relative group hover:-translate-y-0.5 ${location.pathname === link.to ? 'text-gold' : 'text-white/65 hover:text-white'}`}
                 >
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full" />
+                  <span
+                    className={`absolute -bottom-1 left-0 h-px bg-gradient-to-r from-gold/60 via-gold to-gold/60 transition-all duration-300 ${location.pathname === link.to ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                  />
                 </Link>
               ))}
             </nav>
@@ -54,14 +56,22 @@ export function Navbar() {
             <div className="hidden md:flex items-center gap-4">
               <span className="text-white/55 text-[13px]">+591 4 000 0000</span>
               <div className="w-px h-[18px] bg-white/12" />
-              <a
+              <motion.a
                 href={`https://wa.me/${WA_NUMBER}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border border-gold/40 text-gold px-4 py-2 rounded-lg text-[12.5px] font-semibold hover:bg-gold/10 transition-colors"
+                className="border border-gold/40 text-gold px-4 py-2 rounded-lg text-[12.5px] font-semibold"
+                whileHover={{
+                  scale: 1.04,
+                  backgroundColor: 'rgba(201,168,76,0.12)',
+                  borderColor: 'rgba(201,168,76,0.7)',
+                  boxShadow: '0 6px 20px rgba(201,168,76,0.18)',
+                }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               >
                 WhatsApp
-              </a>
+              </motion.a>
             </div>
 
             <button className="md:hidden text-white p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
