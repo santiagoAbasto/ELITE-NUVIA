@@ -46,11 +46,12 @@ export function createApp() {
     contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
       directives: {
         defaultSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
+        imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com', 'https://*.basemaps.cartocdn.com'],
         mediaSrc: ["'self'", 'https://res.cloudinary.com'],
         connectSrc: ["'self'", 'https://res.cloudinary.com'],
         scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       },
     } : false,
     crossOriginResourcePolicy: { policy: 'cross-origin' },
