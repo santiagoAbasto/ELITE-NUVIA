@@ -110,14 +110,18 @@ interface SpecItem {
 function SpecCell({ item }: { item: SpecItem }) {
   const Icon = item.icon
   return (
-    <div className={`group min-h-[116px] border border-white/[0.065] bg-[#0b130d] p-4 transition-colors ${item.enabled ? 'hover:border-gold/[0.28] hover:bg-[#0f1b12]' : 'opacity-70'}`}>
-      <div className="flex h-full flex-col justify-between gap-5">
-        <Icon className={`h-6 w-6 ${item.enabled ? 'text-gold' : 'text-white/30'}`} />
+    <div className={`group min-h-[138px] rounded-[18px] border border-white/[0.075] bg-[#0b130d] p-5 transition-colors ${item.enabled ? 'hover:border-gold/[0.30] hover:bg-[#0f1b12]' : 'opacity-68'}`}>
+      <div className="flex h-full flex-col justify-between gap-8">
+        <div
+          className={`flex h-11 w-11 items-center justify-center rounded-xl border ${item.enabled ? 'border-gold/[0.18] bg-gold/[0.075] text-gold' : 'border-white/[0.06] bg-white/[0.025] text-white/30'}`}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
         <div>
-          <div className={`text-[17px] font-bold leading-none ${item.enabled ? 'text-white' : 'text-white/45'}`}>
+          <div className={`text-[18px] font-bold leading-none ${item.enabled ? 'text-white' : 'text-white/45'}`}>
             {item.value}
           </div>
-          <div className="mt-2 text-[11px] font-medium text-white/[0.38]">
+          <div className="mt-2 text-[11px] font-medium uppercase tracking-[0.08em] text-white/[0.36]">
             {item.label}
           </div>
         </div>
@@ -207,6 +211,7 @@ export default function PropiedadDetailPage() {
   const selectedAgent = contactAgents.find(a => a.id === selectedAgentId) ?? propiedad.agente
   const pageUrl = typeof window !== 'undefined' ? window.location.href : `${SITE_URL}/propiedades/${propiedad.slug}`
   const waMsg = `Hola ELITE Nuvia, me interesa esta propiedad: ${propiedad.titulo}. Quisiera coordinar con ${selectedAgent.nombre} ${selectedAgent.apellido}. ${pageUrl}`
+  const hasMultiplePhotos = propiedad.fotos.length > 1
 
   const specs: SpecItem[] = [
     {
@@ -359,15 +364,15 @@ export default function PropiedadDetailPage() {
       </div>
 
       {/* Galería */}
-      <div className="wrap mt-2 mb-8">
+      <div className="wrap mt-2 mb-12 md:mb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-3"
+          className={hasMultiplePhotos ? 'grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_220px]' : 'grid grid-cols-1'}
         >
           {/* Foto principal */}
-          <div className="relative rounded-[18px] overflow-hidden h-[340px] md:h-[480px] bg-[#0d1a10]">
+          <div className={`relative overflow-hidden rounded-[22px] bg-[#0d1a10] shadow-[0_24px_90px_rgba(0,0,0,0.24)] ${hasMultiplePhotos ? 'h-[360px] md:h-[520px]' : 'h-[380px] md:h-[560px] lg:h-[620px]'}`}>
             <AnimatePresence mode="wait">
               <motion.img
                 key={activeImg}
@@ -393,13 +398,13 @@ export default function PropiedadDetailPage() {
           </div>
 
           {/* Miniaturas verticales */}
-          {propiedad.fotos.length > 1 && (
-            <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto lg:max-h-[480px] pb-1">
+          {hasMultiplePhotos && (
+            <div className="flex gap-3 overflow-x-auto pb-1 lg:max-h-[520px] lg:flex-col lg:overflow-y-auto">
               {propiedad.fotos.map((foto, i) => (
                 <button
                   key={foto.id}
                   onClick={() => setActiveImg(i)}
-                  className="flex-shrink-0 w-24 lg:w-full h-[72px] rounded-xl overflow-hidden transition-all"
+                  className="h-[82px] w-28 flex-shrink-0 overflow-hidden rounded-2xl transition-all lg:h-[94px] lg:w-full"
                   style={{
                     opacity: activeImg === i ? 1 : 0.45,
                     outline: activeImg === i ? '2px solid #C9A84C' : '2px solid transparent',
@@ -415,23 +420,24 @@ export default function PropiedadDetailPage() {
       </div>
 
       {/* Contenido principal */}
-      <div className="wrap pb-28">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-12">
+      <div className="wrap pb-32">
+        <div className="grid grid-cols-1 gap-9 lg:grid-cols-[minmax(0,1fr)_360px] xl:gap-14">
           {/* Columna izquierda */}
           <motion.div
+            className="space-y-10"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {/* Precio y características */}
+            {/* Precio */}
             <section
-              className="mb-9 overflow-hidden rounded-[22px] border"
+              className="rounded-[24px] border p-7 md:p-8"
               style={{
                 background: 'linear-gradient(135deg, rgba(201,168,76,0.055) 0%, rgba(9,18,11,0.94) 48%, rgba(8,14,9,0.98) 100%)',
                 borderColor: 'rgba(201,168,76,0.16)',
               }}
             >
-              <div className="grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
+              <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_240px] md:items-end">
                 <div>
                   <div className="text-gold/65 text-[10px] font-bold tracking-[2.5px] uppercase mb-2">
                     Valor publicado
@@ -446,15 +452,30 @@ export default function PropiedadDetailPage() {
                     {propiedad.tipo.toLowerCase().replace('_', ' ')} · precio negociable
                   </div>
                 </div>
-                <div className="md:text-right">
+                <div className="rounded-2xl border border-white/[0.065] bg-white/[0.025] p-5 md:text-right">
                   <div className="text-white/35 text-[11px] font-semibold">Inventario ELITE</div>
                   <div className="mt-1 text-[13px] font-semibold text-white/75">
                     Publicación institucional
                   </div>
                 </div>
               </div>
+            </section>
 
-              <div className="grid grid-cols-2 overflow-hidden border-t border-white/[0.065] sm:grid-cols-3 xl:grid-cols-6">
+            {/* Características */}
+            <section>
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-px w-5 bg-gold" />
+                  <span className="text-gold text-[11px] font-bold tracking-[3px] uppercase">
+                    Características
+                  </span>
+                </div>
+                <span className="hidden text-[11px] font-medium text-white/[0.32] sm:inline">
+                  Datos principales del inmueble
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 md:gap-5 xl:grid-cols-3">
                 {specs.map(item => (
                   <SpecCell key={item.key} item={item} />
                 ))}
