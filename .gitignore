@@ -16,3 +16,4 @@ docs/superpowers/
 
 # Videos grandes — descargar con: curl -o apps/web/public/hero.mp4 <VITE_HERO_VIDEO_URL>
 apps/web/public/hero.mp4
+videos/
