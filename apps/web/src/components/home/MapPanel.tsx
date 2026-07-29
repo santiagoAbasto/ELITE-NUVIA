@@ -35,7 +35,19 @@ export function MapPanel({ ciudad }: MapPanelProps) {
 
   // Lazy-load react-leaflet to avoid SSR issues
   useEffect(() => {
-    import('react-leaflet').then(({ MapContainer, TileLayer, Marker, Popup }) => {
+    Promise.all([
+      import('react-leaflet'),
+      import('leaflet'),
+      import('leaflet/dist/images/marker-icon.png'),
+      import('leaflet/dist/images/marker-icon-2x.png'),
+      import('leaflet/dist/images/marker-shadow.png'),
+    ]).then(([{ MapContainer, TileLayer, Marker, Popup }, L, icon, iconRetina, shadow]) => {
+      delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl
+      L.Icon.Default.mergeOptions({
+        iconUrl: icon.default,
+        iconRetinaUrl: iconRetina.default,
+        shadowUrl: shadow.default,
+      })
       setMapComps({ MapContainer, TileLayer, Marker, Popup })
     })
   }, [])
