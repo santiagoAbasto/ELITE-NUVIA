@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useCmsSection } from '../hooks/useCmsSection'
 import { DEFAULT_CMS_DATA } from '../lib/cmsDefaults'
+import { Seo } from '../components/Seo'
 
 const IconHome = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -131,6 +132,11 @@ export default function ServiciosPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
+      <Seo
+        title="Servicios Inmobiliarios en Cochabamba"
+        description="Venta, alquiler y anticrético de propiedades en Cochabamba con asesoría personalizada de principio a fin. Conoce cómo trabaja ELITE Nuvia."
+        path="/servicios"
+      />
       {/* Header */}
       <div className="relative pt-28 pb-14" style={{ background: 'linear-gradient(180deg, #0D3B27 0%, #080e09 100%)' }}>
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)' }} />

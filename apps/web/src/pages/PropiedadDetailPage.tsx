@@ -3,7 +3,14 @@ import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../lib/api'
 import { formatPrice, badgeConfig, whatsappUrl } from '../lib/utils'
+import { Seo, SITE_URL } from '../components/Seo'
 import type { PropiedadPublica } from '@elite/types'
+
+const OPERACION_LABEL: Record<string, string> = {
+  VENTA: 'en venta',
+  ALQUILER: 'en alquiler',
+  ANTICRETICO: 'en anticrético',
+}
 
 export default function PropiedadDetailPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -72,8 +79,41 @@ export default function PropiedadDetailPage() {
     { v: propiedad.garage ? 'Incluido' : null, l: 'Garage', icon: '🚗' },
   ].filter(f => f.v != null)
 
+  const opLabel = OPERACION_LABEL[propiedad.tipo] ?? ''
+  const seoDescription = `${propiedad.titulo} ${opLabel} en ${propiedad.zona ? `${propiedad.zona}, ` : ''}${propiedad.ciudad}. ${propiedad.dormitorios ?? '—'} dormitorios, ${propiedad.banos ?? '—'} baños${propiedad.superficieM2 ? `, ${propiedad.superficieM2} m²` : ''}. Precio: ${propiedad.moneda} ${propiedad.precio.toLocaleString('es-BO')}.`
+  const propiedadJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateListing',
+    name: propiedad.titulo,
+    description: propiedad.descripcion,
+    url: `${SITE_URL}/propiedades/${propiedad.slug}`,
+    image: propiedad.fotos.map(f => f.url),
+    datePosted: propiedad.createdAt,
+    offers: {
+      '@type': 'Offer',
+      price: propiedad.precio,
+      priceCurrency: propiedad.moneda,
+      availability: 'https://schema.org/InStock',
+    },
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: propiedad.ciudad,
+      addressRegion: propiedad.zona ?? undefined,
+      addressCountry: 'BO',
+    },
+    numberOfRooms: propiedad.dormitorios ?? undefined,
+    floorSize: propiedad.superficieM2 ? { '@type': 'QuantitativeValue', value: propiedad.superficieM2, unitCode: 'MTK' } : undefined,
+  }
+
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
+      <Seo
+        title={`${propiedad.titulo} — ${propiedad.ciudad}`}
+        description={seoDescription}
+        path={`/propiedades/${propiedad.slug}`}
+        image={propiedad.fotos[0]?.url}
+        jsonLd={propiedadJsonLd}
+      />
       {/* Page header area */}
       <div
         className="relative pt-24 pb-0"

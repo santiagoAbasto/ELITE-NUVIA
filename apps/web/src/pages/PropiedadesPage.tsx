@@ -4,6 +4,7 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { api } from '../lib/api'
 import { PropertyCard } from '../components/home/PropertyCard'
 import { PageHeader } from '../components/ui/PageHeader'
+import { Seo } from '../components/Seo'
 import type { PropiedadPublica, TipoOperacion, TipoInmueble } from '@elite/types'
 import { useCmsSection } from '../hooks/useCmsSection'
 import { DEFAULT_CMS_DATA } from '../lib/cmsDefaults'
@@ -122,6 +123,11 @@ export default function PropiedadesPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
+      <Seo
+        title="Propiedades en Venta, Alquiler y Anticrético en Cochabamba"
+        description="Explora casas, departamentos y garzoniers disponibles en Cochabamba, Bolivia. Filtra por ciudad, tipo de inmueble, dormitorios y precio."
+        path="/propiedades"
+      />
       {/* Page header */}
       <PageHeader eyebrow={cms.eyebrow ?? 'Inmuebles'} title={headerTitle} meta={metaText} />
 

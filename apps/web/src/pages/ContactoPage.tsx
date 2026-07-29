@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useCmsSection } from '../hooks/useCmsSection'
 import { DEFAULT_CMS_DATA } from '../lib/cmsDefaults'
+import { Seo } from '../components/Seo'
 
 const WA_NUMBER = import.meta.env.VITE_WA_NUMBER ?? '59170000000'
 
@@ -97,6 +98,11 @@ export default function ContactoPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
+      <Seo
+        title="Contacto"
+        description="Contáctanos por WhatsApp, teléfono o formulario. Estamos en Cochabamba, Bolivia, listos para ayudarte a encontrar tu próxima propiedad."
+        path="/contacto"
+      />
       {/* Header */}
       <div className="relative pt-28 pb-14" style={{ background: 'linear-gradient(180deg, #0D3B27 0%, #080e09 100%)' }}>
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)' }} />

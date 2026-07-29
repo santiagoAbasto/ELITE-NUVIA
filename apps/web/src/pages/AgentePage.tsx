@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { api } from '../lib/api'
 import { PropertyCard } from '../components/home/PropertyCard'
 import { whatsappUrl } from '../lib/utils'
+import { Seo } from '../components/Seo'
 import type { AgentePublico, PropiedadPublica } from '@elite/types'
 
 type AgenteConProps = AgentePublico & { propiedades: PropiedadPublica[] }
@@ -38,6 +39,20 @@ export default function AgentePage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
+      <Seo
+        title={`${agente.nombre} ${agente.apellido} — Agente Inmobiliario en Cochabamba`}
+        description={agente.bio ?? `Contacta a ${agente.nombre} ${agente.apellido}, agente inmobiliario de ELITE Nuvia en Cochabamba, Bolivia.`}
+        path={`/agentes/${agente.slug}`}
+        image={agente.foto ?? undefined}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Person',
+          name: `${agente.nombre} ${agente.apellido}`,
+          jobTitle: 'Agente Inmobiliario',
+          worksFor: { '@type': 'Organization', name: 'ELITE Nuvia' },
+          telephone: agente.telefono,
+        }}
+      />
       {/* Header agente */}
       <div className="relative pt-28 pb-16" style={{ background: 'linear-gradient(180deg, #0D3B27 0%, #080e09 100%)' }}>
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)' }} />

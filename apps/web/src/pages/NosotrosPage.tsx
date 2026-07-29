@@ -4,6 +4,7 @@ import { AgentsSection } from '../components/home/AgentsSection'
 import { StatsSection, type StatsSectionItem } from '../components/home/StatsSection'
 import { useCmsSection } from '../hooks/useCmsSection'
 import { DEFAULT_CMS_DATA } from '../lib/cmsDefaults'
+import { Seo } from '../components/Seo'
 
 // Icons premium — línea fina, únicos, sin ambigüedad
 const IconAward = () => (
@@ -110,6 +111,11 @@ export default function NosotrosPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#080e09' }}>
+      <Seo
+        title="Sobre Nosotros"
+        description="Conoce la historia, valores y equipo de ELITE Nuvia, inmobiliaria de confianza en Cochabamba, Bolivia."
+        path="/nosotros"
+      />
 
       {/* ─── HEADER ─── */}
       <div className="relative pt-28 pb-20" style={{ background: 'linear-gradient(180deg, #0D3B27 0%, #080e09 100%)' }}>

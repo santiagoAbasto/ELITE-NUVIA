@@ -8,6 +8,7 @@ sitemapRouter.get('/robots.txt', (_req, res) => {
   res.send([
     'User-agent: *',
     'Allow: /',
+    'Disallow: /admin/',
     'Disallow: /ELITE-CRM/',
     'Disallow: /api/',
     '',
