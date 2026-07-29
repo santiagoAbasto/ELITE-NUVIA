@@ -6,12 +6,12 @@ export const adminUploadRouter = Router()
 
 const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif',
-  'application/pdf',
+  'application/pdf', 'video/mp4', 'video/webm',
 ])
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 20 * 1024 * 1024 },
+  limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
       cb(new Error('Tipo de archivo no permitido'))
