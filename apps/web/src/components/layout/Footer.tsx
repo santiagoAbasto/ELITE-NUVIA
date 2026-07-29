@@ -58,9 +58,9 @@ export function Footer() {
   const whatsapp = cms.socialWhatsapp || WA_NUMBER
 
   return (
-    <footer style={{ background: '#060e08' }} className="pt-16 pb-6">
+    <footer style={{ background: '#060e08' }} className="pt-20 pb-10">
       <div className="wrap">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16">
           <div className="md:col-span-2">
             <LogoSVG />
             <p className="text-white/38 text-[13px] leading-relaxed mt-4 max-w-[240px]">
@@ -111,13 +111,20 @@ export function Footer() {
           </div>
         </div>
 
-      </div>
-
-      <div className="border-t border-white/05" />
-
-      <div className="wrap pt-5 flex flex-col md:flex-row justify-between items-center gap-3">
-        <div className="text-white/25 text-[11.5px]">{cms.textoLegal ?? '© 2025 ELITE Nuvia. Todos los derechos reservados.'}</div>
-        <div className="text-gold text-[11px] font-bold tracking-[3px]">TU HOGAR, NUESTRA PASION</div>
+        <div className="mt-16">
+          <div
+            className="h-px w-full"
+            style={{ background: 'linear-gradient(90deg, rgba(201,168,76,0.28), rgba(255,255,255,0.09) 42%, rgba(201,168,76,0.20))' }}
+          />
+          <div className="flex flex-col items-start justify-between gap-4 pt-8 md:flex-row md:items-center md:pr-24">
+            <div className="text-white/25 text-[11.5px] leading-relaxed">
+              {cms.textoLegal ?? '© 2025 ELITE Nuvia. Todos los derechos reservados.'}
+            </div>
+            <div className="text-gold text-[11px] font-bold tracking-[3px]">
+              TU HOGAR, NUESTRA PASION
+            </div>
+          </div>
+        </div>
       </div>
     </footer>
   )

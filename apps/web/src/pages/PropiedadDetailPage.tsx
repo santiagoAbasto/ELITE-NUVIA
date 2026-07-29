@@ -4,12 +4,126 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../lib/api'
 import { formatPrice, badgeConfig, whatsappUrl } from '../lib/utils'
 import { Seo, SITE_URL } from '../components/Seo'
-import type { PropiedadPublica } from '@elite/types'
+import type { AgentePublico, PropiedadPublica } from '@elite/types'
 
 const OPERACION_LABEL: Record<string, string> = {
   VENTA: 'en venta',
   ALQUILER: 'en alquiler',
   ANTICRETICO: 'en anticrético',
+}
+
+type IconProps = { className?: string }
+
+function BedIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 10V5.5A1.5 1.5 0 015.5 4h2A2.5 2.5 0 0110 6.5V10" />
+      <path d="M10 10h10a2 2 0 012 2v6" />
+      <path d="M2 18h20" />
+      <path d="M4 18v2" />
+      <path d="M20 18v2" />
+      <path d="M2 12v6" />
+    </svg>
+  )
+}
+
+function BathIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 12h16v2.5a4.5 4.5 0 01-4.5 4.5h-7A4.5 4.5 0 014 14.5V12z" />
+      <path d="M6 12V6.5A2.5 2.5 0 018.5 4H10" />
+      <path d="M9 6h4" />
+      <path d="M7 19l-1 2" />
+      <path d="M17 19l1 2" />
+    </svg>
+  )
+}
+
+function AreaIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 19V5h14" />
+      <path d="M5 19h14V9" />
+      <path d="M9 15h6V9" />
+      <path d="M9 15V9" />
+    </svg>
+  )
+}
+
+function GarageIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 10l8-5 8 5v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9z" />
+      <path d="M8 20v-7h8v7" />
+      <path d="M9.5 15h5" />
+    </svg>
+  )
+}
+
+function SofaIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 11V8a3 3 0 013-3h4a3 3 0 013 3v3" />
+      <path d="M5 13h14a3 3 0 013 3v3H2v-3a3 3 0 013-3z" />
+      <path d="M5 19v2" />
+      <path d="M19 19v2" />
+    </svg>
+  )
+}
+
+function PoolIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 17c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1" />
+      <path d="M4 21c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1" />
+      <path d="M8 13V6a3 3 0 013-3h1" />
+      <path d="M8 9h8" />
+      <path d="M16 13V6a3 3 0 013-3h1" />
+    </svg>
+  )
+}
+
+function PhoneIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92v2.35a2 2 0 01-2.18 2 19.86 19.86 0 01-8.63-3.07 19.45 19.45 0 01-6-6A19.86 19.86 0 012.13 3.6 2 2 0 014.11 1.4h2.35a2 2 0 012 1.72c.12.91.33 1.8.62 2.65a2 2 0 01-.45 2.1L7.64 8.86a16 16 0 006.5 6.5l.99-.99a2 2 0 012.1-.45c.85.29 1.74.5 2.65.62A2 2 0 0122 16.92z" />
+    </svg>
+  )
+}
+
+function WhatsAppIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  )
+}
+
+interface SpecItem {
+  key: string
+  label: string
+  value: string
+  enabled: boolean
+  icon: (props: IconProps) => JSX.Element
+}
+
+function SpecCell({ item }: { item: SpecItem }) {
+  const Icon = item.icon
+  return (
+    <div className={`group min-h-[116px] border border-white/[0.065] bg-[#0b130d] p-4 transition-colors ${item.enabled ? 'hover:border-gold/[0.28] hover:bg-[#0f1b12]' : 'opacity-70'}`}>
+      <div className="flex h-full flex-col justify-between gap-5">
+        <Icon className={`h-6 w-6 ${item.enabled ? 'text-gold' : 'text-white/30'}`} />
+        <div>
+          <div className={`text-[17px] font-bold leading-none ${item.enabled ? 'text-white' : 'text-white/45'}`}>
+            {item.value}
+          </div>
+          <div className="mt-2 text-[11px] font-medium text-white/[0.38]">
+            {item.label}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function PropiedadDetailPage() {
@@ -18,17 +132,38 @@ export default function PropiedadDetailPage() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [activeImg, setActiveImg] = useState(0)
+  const [agentes, setAgentes] = useState<AgentePublico[]>([])
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!slug) return
     setLoading(true)
+    setNotFound(false)
     setActiveImg(0)
     api.propiedades
       .bySlug(slug)
-      .then(setPropiedad)
+      .then(data => {
+        setPropiedad(data)
+        setSelectedAgentId(data.agente.id)
+      })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
   }, [slug])
+
+  useEffect(() => {
+    let active = true
+    api.agentes
+      .list()
+      .then(data => {
+        if (active) setAgentes(data)
+      })
+      .catch(() => {
+        if (active) setAgentes([])
+      })
+    return () => {
+      active = false
+    }
+  }, [])
 
   if (loading) {
     return (
@@ -66,18 +201,57 @@ export default function PropiedadDetailPage() {
   }
 
   const badge = badgeConfig(propiedad.tipo)
-  const waMsg = `Hola ${propiedad.agente.nombre}, me interesa la propiedad: ${propiedad.titulo} (${window.location.href})`
+  const contactAgents = agentes.some(a => a.id === propiedad.agente.id)
+    ? agentes
+    : [propiedad.agente, ...agentes]
+  const selectedAgent = contactAgents.find(a => a.id === selectedAgentId) ?? propiedad.agente
+  const pageUrl = typeof window !== 'undefined' ? window.location.href : `${SITE_URL}/propiedades/${propiedad.slug}`
+  const waMsg = `Hola ELITE Nuvia, me interesa esta propiedad: ${propiedad.titulo}. Quisiera coordinar con ${selectedAgent.nombre} ${selectedAgent.apellido}. ${pageUrl}`
 
-  const features = [
-    { v: propiedad.dormitorios, l: 'Dormitorios', icon: '🛏' },
-    { v: propiedad.banos, l: 'Baños', icon: '🚿' },
+  const specs: SpecItem[] = [
     {
-      v: propiedad.superficieM2 ? `${propiedad.superficieM2} m²` : null,
-      l: 'Superficie',
-      icon: '📐',
+      key: 'dormitorios',
+      value: propiedad.dormitorios != null ? String(propiedad.dormitorios) : 'A consultar',
+      label: 'Dormitorios',
+      enabled: propiedad.dormitorios != null,
+      icon: BedIcon,
     },
-    { v: propiedad.garage ? 'Incluido' : null, l: 'Garage', icon: '🚗' },
-  ].filter(f => f.v != null)
+    {
+      key: 'banos',
+      value: propiedad.banos != null ? String(propiedad.banos) : 'A consultar',
+      label: 'Baños',
+      enabled: propiedad.banos != null,
+      icon: BathIcon,
+    },
+    {
+      key: 'superficie',
+      value: propiedad.superficieM2 ? `${propiedad.superficieM2} m²` : 'A consultar',
+      label: 'Superficie',
+      enabled: propiedad.superficieM2 != null,
+      icon: AreaIcon,
+    },
+    {
+      key: 'garage',
+      value: propiedad.garage ? 'Incluido' : 'No incluido',
+      label: 'Garage',
+      enabled: propiedad.garage,
+      icon: GarageIcon,
+    },
+    {
+      key: 'amueblado',
+      value: propiedad.amueblado ? 'Sí' : 'No',
+      label: 'Amueblado',
+      enabled: propiedad.amueblado,
+      icon: SofaIcon,
+    },
+    {
+      key: 'piscina',
+      value: propiedad.piscina ? 'Sí' : 'No',
+      label: 'Piscina',
+      enabled: propiedad.piscina,
+      icon: PoolIcon,
+    },
+  ]
 
   const opLabel = OPERACION_LABEL[propiedad.tipo] ?? ''
   const seoDescription = `${propiedad.titulo} ${opLabel} en ${propiedad.zona ? `${propiedad.zona}, ` : ''}${propiedad.ciudad}. ${propiedad.dormitorios ?? '—'} dormitorios, ${propiedad.banos ?? '—'} baños${propiedad.superficieM2 ? `, ${propiedad.superficieM2} m²` : ''}. Precio: ${propiedad.moneda} ${propiedad.precio.toLocaleString('es-BO')}.`
@@ -249,57 +423,43 @@ export default function PropiedadDetailPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {/* Precio */}
-            <div
-              className="border rounded-[18px] p-6 mb-8"
+            {/* Precio y características */}
+            <section
+              className="mb-9 overflow-hidden rounded-[22px] border"
               style={{
-                background: 'linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-                borderColor: 'rgba(201,168,76,0.15)',
+                background: 'linear-gradient(135deg, rgba(201,168,76,0.055) 0%, rgba(9,18,11,0.94) 48%, rgba(8,14,9,0.98) 100%)',
+                borderColor: 'rgba(201,168,76,0.16)',
               }}
             >
-              <div className="text-gold/60 text-[10px] font-bold tracking-[2.5px] uppercase mb-1">
-                Precio
-              </div>
-              <div
-                className="text-[38px] md:text-[44px] font-extrabold text-gold leading-tight"
-                style={{ letterSpacing: '-0.025em' }}
-              >
-                {formatPrice(propiedad.precio, propiedad.moneda)}
-              </div>
-              <div className="text-white/25 text-[12px] mt-1.5 capitalize">
-                {propiedad.tipo.toLowerCase().replace('_', ' ')} · precio negociable
-              </div>
-            </div>
-
-            {/* Features */}
-            {features.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-                {features.map(f => (
+              <div className="grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
+                <div>
+                  <div className="text-gold/65 text-[10px] font-bold tracking-[2.5px] uppercase mb-2">
+                    Valor publicado
+                  </div>
                   <div
-                    key={f.l}
-                    className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center"
+                    className="text-[38px] md:text-[48px] font-extrabold text-gold leading-tight"
+                    style={{ letterSpacing: '-0.025em' }}
                   >
-                    <div className="text-2xl mb-2">{f.icon}</div>
-                    <div className="text-white font-bold text-[15px]">{f.v}</div>
-                    <div className="text-white/35 text-[11px] mt-0.5">{f.l}</div>
+                    {formatPrice(propiedad.precio, propiedad.moneda)}
                   </div>
-                ))}
-                {propiedad.amueblado && (
-                  <div className="bg-gold/[0.06] border border-gold/20 rounded-xl p-4 text-center">
-                    <div className="text-2xl mb-2">🛋</div>
-                    <div className="text-gold font-bold text-[15px]">Sí</div>
-                    <div className="text-white/35 text-[11px] mt-0.5">Amueblado</div>
+                  <div className="text-white/[0.38] text-[12px] mt-2 capitalize">
+                    {propiedad.tipo.toLowerCase().replace('_', ' ')} · precio negociable
                   </div>
-                )}
-                {propiedad.piscina && (
-                  <div className="bg-gold/[0.06] border border-gold/20 rounded-xl p-4 text-center">
-                    <div className="text-2xl mb-2">🏊</div>
-                    <div className="text-gold font-bold text-[15px]">Sí</div>
-                    <div className="text-white/35 text-[11px] mt-0.5">Piscina</div>
+                </div>
+                <div className="md:text-right">
+                  <div className="text-white/35 text-[11px] font-semibold">Inventario ELITE</div>
+                  <div className="mt-1 text-[13px] font-semibold text-white/75">
+                    Publicación institucional
                   </div>
-                )}
+                </div>
               </div>
-            )}
+
+              <div className="grid grid-cols-2 overflow-hidden border-t border-white/[0.065] sm:grid-cols-3 xl:grid-cols-6">
+                {specs.map(item => (
+                  <SpecCell key={item.key} item={item} />
+                ))}
+              </div>
+            </section>
 
             {/* Descripción */}
             {propiedad.descripcion && (
@@ -317,7 +477,7 @@ export default function PropiedadDetailPage() {
             )}
           </motion.div>
 
-          {/* Sidebar agente */}
+          {/* Sidebar contacto */}
           <motion.div
             className="lg:sticky lg:top-24 self-start"
             initial={{ opacity: 0, y: 16 }}
@@ -325,23 +485,39 @@ export default function PropiedadDetailPage() {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <div
-              className="border rounded-[20px] p-6 overflow-hidden relative"
-              style={{ background: '#0d1a10', borderColor: 'rgba(255,255,255,0.08)' }}
+              className="border rounded-[22px] p-6 overflow-hidden relative"
+              style={{
+                background: 'linear-gradient(145deg, rgba(13,26,16,0.98), rgba(8,20,12,0.98))',
+                borderColor: 'rgba(255,255,255,0.08)',
+              }}
             >
-              {/* Glow decorativo */}
-              <div
-                className="absolute top-0 right-0 w-40 h-40 rounded-full pointer-events-none"
-                style={{
-                  background: 'radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%)',
-                  transform: 'translate(30%, -30%)',
-                }}
-              />
-
-              <div className="text-white/25 text-[10px] font-bold tracking-[2.5px] uppercase mb-5">
-                Tu asesor
+              <div className="text-white/30 text-[10px] font-bold tracking-[2.5px] uppercase mb-5">
+                Atención ELITE
               </div>
 
-              <div className="flex items-center gap-3.5 mb-6">
+              <div className="mb-5">
+                <div className="text-[15px] font-bold text-white">ELITE Nuvia</div>
+                <p className="mt-1 text-[12px] leading-relaxed text-white/48">
+                  La propiedad pertenece al inventario de ELITE. Elige el asesor con quien quieres coordinar.
+                </p>
+              </div>
+
+              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-white/[0.32]">
+                Asesor de contacto
+              </label>
+              <select
+                value={selectedAgent.id}
+                onChange={e => setSelectedAgentId(e.target.value)}
+                className="mb-5 w-full rounded-2xl border border-white/[0.10] bg-[#08120b] px-4 py-3 text-[13px] font-semibold text-white/78 outline-none transition-colors focus:border-gold/[0.45]"
+              >
+                {contactAgents.map(agente => (
+                  <option key={agente.id} value={agente.id}>
+                    {agente.nombre} {agente.apellido}
+                  </option>
+                ))}
+              </select>
+
+              <div className="flex items-center gap-3.5 mb-6 border-y border-white/[0.07] py-4">
                 <div
                   className="w-14 h-14 rounded-full border-2 flex items-center justify-center text-gold text-lg font-bold flex-shrink-0"
                   style={{
@@ -349,49 +525,36 @@ export default function PropiedadDetailPage() {
                     borderColor: 'rgba(201,168,76,0.3)',
                   }}
                 >
-                  {propiedad.agente.nombre[0]}
-                  {propiedad.agente.apellido[0]}
+                  {selectedAgent.nombre[0]}
+                  {selectedAgent.apellido[0]}
                 </div>
                 <div>
                   <div className="text-white font-semibold text-[15px] leading-tight">
-                    {propiedad.agente.nombre} {propiedad.agente.apellido}
+                    {selectedAgent.nombre} {selectedAgent.apellido}
                   </div>
-                  <div className="text-white/35 text-[12px] mt-0.5">Asesor/a Inmobiliaria</div>
+                  <div className="text-white/[0.38] text-[12px] mt-0.5">Asesor/a de contacto</div>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <a
-                  href={whatsappUrl(propiedad.agente.whatsapp, waMsg)}
+                  href={whatsappUrl(selectedAgent.whatsapp, waMsg)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl font-bold text-[13px] transition-opacity hover:opacity-90"
                   style={{ background: '#25D366', color: '#fff' }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                  </svg>
-                  Consultar por WhatsApp
+                  <WhatsAppIcon className="h-4 w-4" />
+                  Consultar con ELITE
                 </a>
 
                 <a
-                  href={`tel:${propiedad.agente.telefono}`}
+                  href={`tel:${selectedAgent.telefono}`}
                   className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl font-semibold text-[13px] border transition-colors hover:bg-white/[0.05]"
                   style={{ borderColor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.65)' }}
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7 2 2 0 012-2.18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 6.5a16 16 0 006 6l.61-1.24a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 13.92z" />
-                  </svg>
-                  {propiedad.agente.telefono}
+                  <PhoneIcon className="h-3.5 w-3.5" />
+                  {selectedAgent.telefono}
                 </a>
 
                 <div
@@ -399,10 +562,10 @@ export default function PropiedadDetailPage() {
                   style={{ borderColor: 'rgba(255,255,255,0.06)' }}
                 >
                   <Link
-                    to={`/agentes/${propiedad.agente.slug}`}
+                    to={`/agentes/${selectedAgent.slug}`}
                     className="block text-center text-gold/70 text-[12px] font-semibold hover:text-gold transition-colors"
                   >
-                    Ver perfil del agente →
+                    Ver trayectoria del asesor →
                   </Link>
                 </div>
               </div>
@@ -412,7 +575,7 @@ export default function PropiedadDetailPage() {
             <div className="mt-4 flex gap-2">
               <Link
                 to="/propiedades"
-                className="flex-1 text-center py-2.5 rounded-xl border border-white/08 text-white/35 text-[12px] hover:text-white/55 hover:bg-white/[0.03] transition-colors"
+                className="flex-1 text-center py-2.5 rounded-xl border border-white/[0.08] text-white/35 text-[12px] hover:text-white/55 hover:bg-white/[0.03] transition-colors"
               >
                 ← Volver
               </Link>
