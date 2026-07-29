@@ -43,7 +43,16 @@ export function createApp() {
   app.set('trust proxy', 1)
 
   app.use(helmet({
-    contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+    contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
+        mediaSrc: ["'self'", 'https://res.cloudinary.com'],
+        connectSrc: ["'self'", 'https://res.cloudinary.com'],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+      },
+    } : false,
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   }))
   app.use(cors({

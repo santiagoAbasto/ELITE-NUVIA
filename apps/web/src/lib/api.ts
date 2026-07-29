@@ -6,7 +6,7 @@ import type {
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
 async function get<T>(path: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> {
-  const url = new URL(`${BASE}${path}`)
+  const url = new URL(`${BASE}${path}`, window.location.origin)
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined) url.searchParams.set(k, String(v))

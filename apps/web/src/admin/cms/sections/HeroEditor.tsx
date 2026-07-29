@@ -21,7 +21,7 @@ export default function HeroEditor({ datos, onChange }: Props) {
         onChange={set('videoUrl')}
         label="Video de fondo"
         accept="video/*,image/*"
-        tip="MP4 recomendado. Máximo 20 MB."
+        tip="MP4 recomendado. Máximo 50 MB."
       />
 
       <div className="space-y-1">
