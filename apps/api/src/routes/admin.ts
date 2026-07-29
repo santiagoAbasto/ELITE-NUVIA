@@ -33,27 +33,22 @@ adminRouter.get('/:propiedadId', async (req, res, next) => {
   try {
     const { propiedadId } = req.params
     const user = req.user!
-
-    if (user.rol === 'AGENTE') {
-      const agente = await prisma.agente.findFirst({ where: { user: { id: user.userId } } })
-      const propiedad = await prisma.propiedad.findUnique({
-        where: { id: propiedadId },
-        include: { captacion: { select: { agenteId: true } } },
-      })
-      const canGenerate =
-        propiedad?.captacion?.agenteId === agente?.id ||
-        propiedad?.agenteAsignadoId === agente?.id
-      if (!canGenerate) {
-        res.status(403).json({ error: 'Forbidden', message: 'Sin permiso para generar este PDF', statusCode: 403 })
-        return
-      }
-    }
-
-    const pdfBuffer = await generatePropertyPdf(propiedadId)
     const propiedad = await prisma.propiedad.findUnique({
       where: { id: propiedadId },
       select: { slug: true, agente: { select: { apellido: true } } },
     })
+    if (!propiedad) {
+      res.status(404).json({ error: 'No encontrado', message: 'Propiedad no encontrada.', statusCode: 404 })
+      return
+    }
+
+    let generadoPorAgenteId: string | null = null
+    if (user.rol === 'AGENTE') {
+      const agente = await prisma.agente.findFirst({ where: { user: { id: user.userId } } })
+      generadoPorAgenteId = agente?.id ?? null
+    }
+
+    const pdfBuffer = await generatePropertyPdf(propiedadId, generadoPorAgenteId)
     const filename = `elite-nuvia-${propiedad?.slug ?? propiedadId}-${propiedad?.agente.apellido?.toLowerCase() ?? 'agente'}.pdf`
 
     res.setHeader('Content-Type', 'application/pdf')

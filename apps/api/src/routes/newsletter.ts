@@ -1,15 +1,20 @@
 import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
 import { verifyJWT } from '../middleware/auth.js'
+import { publicWriteRateLimiter } from '../middleware/rateLimiter.js'
 
 export const newsletterRouter = Router()
 
-newsletterRouter.post('/subscribe', async (req, res, next) => {
+newsletterRouter.post('/subscribe', publicWriteRateLimiter, async (req, res, next) => {
   try {
     const { email, nombre } = req.body as { email?: string; nombre?: string }
 
-    if (!email || !email.includes('@')) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 200) {
       res.status(400).json({ error: 'Bad Request', message: 'Email valido requerido', statusCode: 400 })
+      return
+    }
+    if (nombre && nombre.length > 120) {
+      res.status(400).json({ error: 'Bad Request', message: 'Nombre demasiado largo', statusCode: 400 })
       return
     }
 

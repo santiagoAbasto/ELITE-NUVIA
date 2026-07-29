@@ -72,6 +72,8 @@ export default function AgenteDetail() {
   const nombreCompleto = [agente.nombre, agente.primerApellido ?? agente.apellido, agente.segundoApellido]
     .filter(Boolean).join(' ')
 
+  const apellidoInicial = agente.primerApellido || agente.apellido || ''
+
   const edad = agente.fechaNacimiento
     ? Math.floor((Date.now() - new Date(agente.fechaNacimiento).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
     : null
@@ -97,7 +99,7 @@ export default function AgenteDetail() {
               <img src={agente.foto} alt={nombreCompleto} className="h-24 w-24 rounded-3xl object-cover ring-2 ring-gold/[0.24]" />
             ) : (
               <div className="grid h-24 w-24 place-items-center rounded-3xl bg-gold/[0.12] ring-2 ring-gold/[0.20]">
-                <span className="text-[28px] font-black text-gold">{agente.nombre[0]}{(agente.primerApellido ?? agente.apellido)[0]}</span>
+                <span className="text-[28px] font-black text-gold">{agente.nombre[0] ?? ''}{apellidoInicial[0] ?? ''}</span>
               </div>
             )}
             <span className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-[#0b130d] ${agente.activo ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
@@ -119,7 +121,7 @@ export default function AgenteDetail() {
             </div>
 
             {agente.bio && (
-              <div className="mt-3 prose prose-invert prose-sm max-w-none text-white/[0.56]" dangerouslySetInnerHTML={{ __html: agente.bio }} />
+              <p className="mt-3 max-w-none whitespace-pre-wrap text-[13px] leading-relaxed text-white/[0.56]">{agente.bio}</p>
             )}
           </div>
 

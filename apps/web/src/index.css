@@ -30,6 +30,13 @@ body {
   margin: 0;
 }
 
+html.admin-scroll-lock,
+body.admin-scroll-lock,
+body.admin-scroll-lock #root {
+  height: 100dvh;
+  overflow: hidden;
+}
+
 .wrap {
   width: 100%;
   max-width: 1366px;
@@ -83,6 +90,8 @@ body {
   background:
     linear-gradient(180deg, rgba(13, 59, 39, 0.58) 0%, rgba(6, 12, 8, 0.96) 36%, #050905 100%),
     repeating-linear-gradient(90deg, rgba(201, 168, 76, 0.035) 0 1px, transparent 1px 96px);
+  height: 100dvh;
+  min-height: 100dvh;
   color-scheme: dark;
 }
 
@@ -90,6 +99,8 @@ body {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 180px),
     linear-gradient(90deg, rgba(201, 168, 76, 0.035), transparent 32%);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .admin-shell input,

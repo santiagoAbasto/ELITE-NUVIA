@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { adminApi } from '../../shared/adminApi'
+import { useAdminAuth } from '../../context/AdminAuthContext'
 
+interface Agente { id: string; nombre: string; apellido: string }
 interface Captacion {
   id: string; propietarioNombre: string; propietarioTelefono: string
   tipo: string; tipoInmueble: string; ciudad: string; zona?: string
   precioSolicitado: number; moneda: string; estado: string
   agente: { nombre: string; apellido: string }
+  propiedad?: { id: string; titulo: string; activa: boolean } | null
   createdAt: string
 }
 
@@ -23,23 +26,45 @@ const ESTADOS = Object.keys(ESTADO_META)
 const TIPOS = ['VENTA', 'ALQUILER', 'ANTICRETICO']
 
 export default function CaptacionesPage() {
+  const { user } = useAdminAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [captaciones, setCaptaciones] = useState<Captacion[]>([])
+  const [agentes, setAgentes] = useState<Agente[]>([])
   const [loading, setLoading] = useState(true)
-  const [filters, setFilters] = useState({ estado: '', tipo: '' })
+  const [filters, setFilters] = useState({
+    q: '',
+    estado: '',
+    tipo: '',
+    ciudad: '',
+    agenteId: searchParams.get('agenteId') ?? '',
+  })
+
+  const isAgent = user?.rol === 'AGENTE'
 
   const load = () => {
     setLoading(true)
     const params = new URLSearchParams({ pageSize: '50' })
+    if (filters.q) params.set('q', filters.q)
     if (filters.estado) params.set('estado', filters.estado)
     if (filters.tipo) params.set('tipo', filters.tipo)
+    if (filters.ciudad) params.set('ciudad', filters.ciudad)
+    if (filters.agenteId) params.set('agenteId', filters.agenteId)
     adminApi.get<{ data: Captacion[] }>(`/admin/captaciones?${params}`)
       .then(r => setCaptaciones(r.data)).catch(() => {}).finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [filters])
+  useEffect(() => {
+    if (!isAgent) {
+      adminApi.get<Agente[]>('/admin/agentes')
+        .then(setAgentes)
+        .catch(() => setAgentes([]))
+    }
+  }, [isAgent])
 
   const selectClass = 'rounded-2xl border border-white/[0.09] bg-white/[0.04] px-3 py-2 text-[13px] text-white outline-none focus:border-gold/[0.40]'
+  const setFilter = (key: keyof typeof filters, value: string) => setFilters(f => ({ ...f, [key]: value }))
 
   return (
     <div className="mx-auto max-w-[1520px] space-y-6">
@@ -60,15 +85,33 @@ export default function CaptacionesPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <select value={filters.estado} onChange={e => setFilters(f => ({ ...f, estado: e.target.value }))} className={selectClass}>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.4fr_repeat(4,minmax(150px,1fr))]">
+        <input
+          value={filters.q}
+          onChange={e => setFilter('q', e.target.value)}
+          placeholder="Buscar propietario, telefono o zona..."
+          className={selectClass}
+        />
+        <select value={filters.estado} onChange={e => setFilter('estado', e.target.value)} className={selectClass}>
           <option value="">Todos los estados</option>
           {ESTADOS.map(s => <option key={s} value={s}>{ESTADO_META[s].label}</option>)}
         </select>
-        <select value={filters.tipo} onChange={e => setFilters(f => ({ ...f, tipo: e.target.value }))} className={selectClass}>
+        <select value={filters.tipo} onChange={e => setFilter('tipo', e.target.value)} className={selectClass}>
           <option value="">Todas las operaciones</option>
           {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
+        <input
+          value={filters.ciudad}
+          onChange={e => setFilter('ciudad', e.target.value)}
+          placeholder="Ciudad"
+          className={selectClass}
+        />
+        {!isAgent && (
+          <select value={filters.agenteId} onChange={e => setFilter('agenteId', e.target.value)} className={selectClass}>
+            <option value="">Todos los asesores</option>
+            {agentes.map(a => <option key={a.id} value={a.id}>{a.nombre} {a.apellido}</option>)}
+          </select>
+        )}
       </div>
 
       {loading ? (
@@ -85,7 +128,7 @@ export default function CaptacionesPage() {
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-white/[0.07]">
-                {['Propietario', 'Inmueble', 'Precio', 'Agente', 'Estado', 'Fecha', ''].map(h => (
+                {['Propietario', 'Inmueble', 'Precio', 'Agente', 'Estado', 'Web', 'Fecha', ''].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-white/[0.36]">{h}</th>
                 ))}
               </tr>
@@ -113,6 +156,15 @@ export default function CaptacionesPage() {
                       <span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${estado.color}`}>
                         {estado.label}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {c.propiedad ? (
+                        <span className={`rounded-full border px-2.5 py-1 text-[10px] font-black ${c.propiedad.activa ? 'border-emerald-400/[0.24] bg-emerald-400/[0.08] text-emerald-300' : 'border-white/[0.10] bg-white/[0.04] text-white/[0.38]'}`}>
+                          {c.propiedad.activa ? 'Visible' : 'Solo CRM'}
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-white/[0.28]">Sin propiedad</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-[11px] text-white/[0.34]">
                       {new Date(c.createdAt).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' })}

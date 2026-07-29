@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { prisma } from '../lib/prisma.js'
 import { loginRateLimiter } from '../middleware/rateLimiter.js'
 import { verifyJWT } from '../middleware/auth.js'
-import type { AuthPayload } from '@elite/types'
+import type { AdminModulo, AuthPayload } from '@elite/types'
 
 export const authRouter = Router()
 
@@ -18,7 +18,7 @@ authRouter.post('/login', loginRateLimiter, async (req, res, next) => {
   try {
     const { email, password } = req.body as { email?: string; password?: string }
     if (!email || !password) {
-      res.status(400).json({ error: 'Bad Request', message: 'Email y password requeridos', statusCode: 400 })
+      res.status(400).json({ error: 'Datos incompletos', message: 'Ingresa tu correo y contrasena para continuar.', statusCode: 400 })
       return
     }
 
@@ -28,27 +28,28 @@ authRouter.post('/login', loginRateLimiter, async (req, res, next) => {
     })
 
     if (!user || !user.activo) {
-      res.status(401).json({ error: 'Unauthorized', message: 'Credenciales invalidas', statusCode: 401 })
+      res.status(401).json({ error: 'Acceso no autorizado', message: 'Correo o contrasena incorrectos.', statusCode: 401 })
       return
     }
 
     const valid = await bcrypt.compare(password, user.password)
     if (!valid) {
-      res.status(401).json({ error: 'Unauthorized', message: 'Credenciales invalidas', statusCode: 401 })
+      res.status(401).json({ error: 'Acceso no autorizado', message: 'Correo o contrasena incorrectos.', statusCode: 401 })
       return
     }
 
     const nombre = user.agente
       ? `${user.agente.nombre} ${user.agente.apellido}`
       : 'Administrador'
+    const permisos = user.permisos as AdminModulo[]
 
-    const payload: AuthPayload = { userId: user.id, rol: user.rol, nombre }
+    const payload: AuthPayload = { userId: user.id, rol: user.rol, nombre, permisos }
     const token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '8h' })
     const refresh = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '30d' })
 
     res.cookie('token', token, { ...COOKIE_OPTS, maxAge: 8 * 60 * 60 * 1000 })
     res.cookie('refresh', refresh, { ...COOKIE_OPTS, maxAge: 30 * 24 * 60 * 60 * 1000 })
-    res.json({ rol: user.rol, nombre })
+    res.json({ rol: user.rol, nombre, permisos })
   } catch (err) { next(err) }
 })
 
@@ -60,7 +61,7 @@ authRouter.post('/refresh', async (req, res, next) => {
   try {
     const refreshToken = req.cookies?.refresh as string | undefined
     if (!refreshToken) {
-      res.status(401).json({ error: 'Unauthorized', message: 'Sin refresh token', statusCode: 401 })
+      res.status(401).json({ error: 'Sesion requerida', message: 'Inicia sesion nuevamente para continuar.', statusCode: 401 })
       return
     }
 
@@ -70,22 +71,23 @@ authRouter.post('/refresh', async (req, res, next) => {
       include: { agente: { select: { nombre: true, apellido: true } } },
     })
     if (!user) {
-      res.status(401).json({ error: 'Unauthorized', message: 'Usuario no encontrado', statusCode: 401 })
+      res.status(401).json({ error: 'Sesion requerida', message: 'Inicia sesion nuevamente para continuar.', statusCode: 401 })
       return
     }
 
     const nombre = user.agente ? `${user.agente.nombre} ${user.agente.apellido}` : 'Administrador'
-    const payload: AuthPayload = { userId: user.id, rol: user.rol, nombre }
+    const permisos = user.permisos as AdminModulo[]
+    const payload: AuthPayload = { userId: user.id, rol: user.rol, nombre, permisos }
     const newToken = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '8h' })
     const newRefresh = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '30d' })
 
     res.cookie('token', newToken, { ...COOKIE_OPTS, maxAge: 8 * 60 * 60 * 1000 })
     res.cookie('refresh', newRefresh, { ...COOKIE_OPTS, maxAge: 30 * 24 * 60 * 60 * 1000 })
-    res.json({ rol: user.rol, nombre })
+    res.json({ rol: user.rol, nombre, permisos })
   } catch {
     res.clearCookie('token')
     res.clearCookie('refresh')
-    res.status(401).json({ error: 'Unauthorized', message: 'Refresh token invalido', statusCode: 401 })
+    res.status(401).json({ error: 'Sesion requerida', message: 'Tu sesion expiro. Inicia sesion nuevamente.', statusCode: 401 })
   }
 })
 

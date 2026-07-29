@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
-import { verifyJWT, requireRole } from '../middleware/auth.js'
+import { verifyJWT, requireModule } from '../middleware/auth.js'
 
 export const cmsRouter = Router()
 
@@ -8,13 +8,13 @@ export const cmsRouter = Router()
 cmsRouter.get('/:seccion', async (req, res, next) => {
   try {
     const content = await prisma.siteContent.findUnique({ where: { seccion: req.params.seccion } })
-    res.setHeader('Cache-Control', 'public, max-age=60')
+    res.setHeader('Cache-Control', 'no-store')
     res.json(content ?? { seccion: req.params.seccion, datos: {} })
   } catch (err) { next(err) }
 })
 
-// PUT — SUPER_ADMIN only
-cmsRouter.put('/:seccion', verifyJWT, requireRole('SUPER_ADMIN'), async (req, res, next) => {
+// PUT — SUPER_ADMIN or a COORDINADOR with the "cms" permiso
+cmsRouter.put('/:seccion', verifyJWT, requireModule('cms'), async (req, res, next) => {
   try {
     const content = await prisma.siteContent.upsert({
       where: { seccion: req.params.seccion },

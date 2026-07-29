@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
 import { verifyJWT } from '../middleware/auth.js'
+import { publicWriteRateLimiter } from '../middleware/rateLimiter.js'
 
 export const leadsRouter = Router()
 
-leadsRouter.post('/', async (req, res, next) => {
+leadsRouter.post('/', publicWriteRateLimiter, async (req, res, next) => {
   try {
     const { nombre, email, telefono, mensaje, propiedadId, agenteId } = req.body as {
       nombre?: string
@@ -15,15 +16,23 @@ leadsRouter.post('/', async (req, res, next) => {
       agenteId?: string
     }
 
-    if (!nombre || !telefono) {
+    if (!nombre || !telefono || nombre.trim().length < 2 || telefono.trim().length < 6) {
       res.status(400).json({ error: 'Bad Request', message: 'Nombre y telefono son requeridos', statusCode: 400 })
+      return
+    }
+    if (nombre.length > 120 || telefono.length > 40 || (mensaje && mensaje.length > 2000)) {
+      res.status(400).json({ error: 'Bad Request', message: 'Uno de los campos excede el largo permitido', statusCode: 400 })
+      return
+    }
+    if (email && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 200)) {
+      res.status(400).json({ error: 'Bad Request', message: 'Email invalido', statusCode: 400 })
       return
     }
 
     const lead = await prisma.lead.create({
       data: {
         nombre: nombre.trim(),
-        email: email?.trim() || null,
+        email: email?.trim().toLowerCase() || null,
         telefono: telefono.trim(),
         mensaje: mensaje?.trim() || null,
         propiedadId: propiedadId || null,

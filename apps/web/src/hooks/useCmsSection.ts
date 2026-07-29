@@ -12,7 +12,7 @@ export function useCmsSection<T extends object>(seccion: string, fallback: T) {
   useEffect(() => {
     let active = true
 
-    fetch(`/api/v1/cms/${seccion}`)
+    fetch(`/api/v1/cms/${seccion}`, { cache: 'no-store' })
       .then(res => {
         if (!res.ok) throw new Error(`CMS ${res.status}`)
         return res.json() as Promise<SiteContentResponse<Record<string, unknown>>>

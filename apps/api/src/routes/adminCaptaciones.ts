@@ -1,13 +1,76 @@
 import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
 import type { AuthPayload } from '@elite/types'
-import type { TipoOperacion, TipoInmueble, EstadoCaptacion } from '@prisma/client'
+import type { Prisma, TipoOperacion, TipoInmueble, EstadoCaptacion, Captacion } from '@prisma/client'
 
 export const adminCaptacionesRouter = Router()
 
 async function getAgenteId(userId: string): Promise<string | null> {
   const agente = await prisma.agente.findFirst({ where: { user: { id: userId } }, select: { id: true } })
   return agente?.id ?? null
+}
+
+function makeSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+async function uniquePropertySlug(base: string): Promise<string> {
+  const cleanBase = makeSlug(base) || `captacion-${Date.now()}`
+  let slug = cleanBase
+  let idx = 2
+  while (await prisma.propiedad.findUnique({ where: { slug }, select: { id: true } })) {
+    slug = `${cleanBase}-${idx}`
+    idx += 1
+  }
+  return slug
+}
+
+function boolFromBody(value: unknown, fallback = false): boolean {
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'string') return value === 'true'
+  return fallback
+}
+
+async function createPropertyFromCaptacion(captacion: Captacion, activa: boolean) {
+  const title = `${captacion.tipoInmueble} en ${captacion.ciudad}${captacion.zona ? ` - ${captacion.zona}` : ''}`
+  const slug = await uniquePropertySlug(title)
+  const fotos = Array.isArray(captacion.fotos)
+    ? (captacion.fotos as string[]).map(url => String(url).trim()).filter(Boolean)
+    : []
+
+  return prisma.propiedad.create({
+    data: {
+      slug,
+      titulo: title,
+      descripcion: captacion.descripcion ?? '',
+      tipo: captacion.tipo,
+      tipoInmueble: captacion.tipoInmueble,
+      precio: captacion.precioSugerido ?? captacion.precioSolicitado,
+      moneda: captacion.moneda,
+      ciudad: captacion.ciudad,
+      zona: captacion.zona,
+      direccion: captacion.direccion,
+      dormitorios: captacion.dormitorios,
+      banos: captacion.banos,
+      superficieM2: captacion.superficieM2,
+      garage: captacion.garage,
+      amueblado: captacion.amueblado,
+      piscina: captacion.piscina,
+      agenteId: captacion.agenteId,
+      agenteAsignadoId: captacion.agenteId,
+      activa,
+      fotos: fotos.length
+        ? { create: fotos.map((url, orden) => ({ url, urlThumb: url, orden })) }
+        : undefined,
+    },
+  })
 }
 
 async function canEdit(captacionId: string, user: AuthPayload): Promise<boolean> {
@@ -20,9 +83,20 @@ async function canEdit(captacionId: string, user: AuthPayload): Promise<boolean>
 // GET /
 adminCaptacionesRouter.get('/', async (req, res, next) => {
   try {
-    const { estado, page = '1', pageSize = '20' } = req.query as Record<string, string>
-    const where: Record<string, unknown> = {}
-    if (estado) where.estado = estado
+    const { estado, tipo, ciudad, agenteId, q, page = '1', pageSize = '20' } = req.query as Record<string, string>
+    const where: Prisma.CaptacionWhereInput = {}
+    if (estado) where.estado = estado as EstadoCaptacion
+    if (tipo) where.tipo = tipo as TipoOperacion
+    if (ciudad) where.ciudad = { contains: ciudad, mode: 'insensitive' }
+    if (agenteId && req.user!.rol !== 'AGENTE') where.agenteId = agenteId
+    if (q) {
+      where.OR = [
+        { propietarioNombre: { contains: q, mode: 'insensitive' } },
+        { propietarioTelefono: { contains: q, mode: 'insensitive' } },
+        { ciudad: { contains: q, mode: 'insensitive' } },
+        { zona: { contains: q, mode: 'insensitive' } },
+      ]
+    }
 
     if (req.user!.rol === 'AGENTE') {
       const agenteId = await getAgenteId(req.user!.userId)
@@ -38,7 +112,10 @@ adminCaptacionesRouter.get('/', async (req, res, next) => {
         skip: (pageNum - 1) * pageSizeNum,
         take: pageSizeNum,
         orderBy: { createdAt: 'desc' },
-        include: { agente: { select: { id: true, nombre: true, apellido: true, foto: true } } },
+        include: {
+          agente: { select: { id: true, nombre: true, apellido: true, foto: true } },
+          propiedad: { select: { id: true, slug: true, titulo: true, activa: true } },
+        },
       }),
       prisma.captacion.count({ where }),
     ])
@@ -79,38 +156,61 @@ adminCaptacionesRouter.post('/', async (req, res, next) => {
       dormitorios, banos, superficieM2, garage, amueblado, piscina, fotos,
       precioSolicitado, precioSugerido, moneda, comisionPct,
       fechaCaptacion, contratoUrl, exclusividadInicio, exclusividadFin,
+      mostrarEnWeb,
     } = req.body as Record<string, unknown>
 
+    if (!propietarioNombre || !propietarioTelefono || !tipoInmueble || !tipo || !ciudad || !precioSolicitado) {
+      res.status(400).json({
+        error: 'Datos incompletos',
+        message: 'Completa propietario, telefono, tipo de inmueble, operacion, ciudad y precio.',
+        statusCode: 400,
+      })
+      return
+    }
+
+    const shouldPublish = boolFromBody(mostrarEnWeb)
     const captacion = await prisma.captacion.create({
       data: {
-        propietarioNombre: propietarioNombre as string,
-        propietarioTelefono: propietarioTelefono as string,
-        propietarioEmail: (propietarioEmail as string) ?? null,
-        propietarioDoc: (propietarioDoc as string) ?? null,
+        propietarioNombre: String(propietarioNombre),
+        propietarioTelefono: String(propietarioTelefono),
+        propietarioEmail: propietarioEmail ? String(propietarioEmail) : null,
+        propietarioDoc: propietarioDoc ? String(propietarioDoc) : null,
         tipoInmueble: tipoInmueble as TipoInmueble,
         tipo: tipo as TipoOperacion,
-        ciudad: ciudad as string,
-        zona: (zona as string) ?? null,
-        direccion: (direccion as string) ?? null,
-        descripcion: (descripcion as string) ?? null,
+        ciudad: String(ciudad),
+        zona: zona ? String(zona) : null,
+        direccion: direccion ? String(direccion) : null,
+        descripcion: descripcion ? String(descripcion) : null,
         dormitorios: dormitorios ? Number(dormitorios) : null,
         banos: banos ? Number(banos) : null,
         superficieM2: superficieM2 ? Number(superficieM2) : null,
-        garage: Boolean(garage),
-        amueblado: Boolean(amueblado),
-        piscina: Boolean(piscina),
-        fotos: (fotos as string[]) ?? [],
+        garage: boolFromBody(garage),
+        amueblado: boolFromBody(amueblado),
+        piscina: boolFromBody(piscina),
+        fotos: Array.isArray(fotos) ? fotos : [],
         precioSolicitado: Number(precioSolicitado),
         precioSugerido: precioSugerido ? Number(precioSugerido) : null,
-        moneda: (moneda as string) ?? 'BOB',
+        moneda: moneda ? String(moneda) : 'BOB',
         comisionPct: comisionPct ? Number(comisionPct) : null,
         fechaCaptacion: fechaCaptacion ? new Date(fechaCaptacion as string) : new Date(),
-        contratoUrl: (contratoUrl as string) ?? null,
+        contratoUrl: contratoUrl ? String(contratoUrl) : null,
         exclusividadInicio: exclusividadInicio ? new Date(exclusividadInicio as string) : null,
         exclusividadFin: exclusividadFin ? new Date(exclusividadFin as string) : null,
+        estado: shouldPublish ? 'PUBLICADA' : 'EN_NEGOCIACION',
         agenteId,
       },
     })
+
+    if (shouldPublish) {
+      const propiedad = await createPropertyFromCaptacion(captacion, true)
+      const updated = await prisma.captacion.update({
+        where: { id: captacion.id },
+        data: { propiedadId: propiedad.id },
+      })
+      res.status(201).json({ ...updated, propiedad })
+      return
+    }
+
     res.status(201).json(captacion)
   } catch (err) { next(err) }
 })
@@ -122,9 +222,41 @@ adminCaptacionesRouter.put('/:id', async (req, res, next) => {
       res.status(403).json({ error: 'Forbidden', message: 'Sin permiso para editar esta captación', statusCode: 403 })
       return
     }
+    const {
+      propietarioNombre, propietarioTelefono, propietarioEmail, propietarioDoc,
+      tipoInmueble, tipo, ciudad, zona, direccion, descripcion,
+      dormitorios, banos, superficieM2, garage, amueblado, piscina,
+      precioSolicitado, precioSugerido, moneda, comisionPct,
+      contratoUrl, exclusividadInicio, exclusividadFin,
+    } = req.body as Record<string, unknown>
+
     const captacion = await prisma.captacion.update({
       where: { id: req.params.id },
-      data: { ...req.body },
+      data: {
+        ...(propietarioNombre !== undefined ? { propietarioNombre: String(propietarioNombre) } : {}),
+        ...(propietarioTelefono !== undefined ? { propietarioTelefono: String(propietarioTelefono) } : {}),
+        ...(propietarioEmail !== undefined ? { propietarioEmail: propietarioEmail ? String(propietarioEmail) : null } : {}),
+        ...(propietarioDoc !== undefined ? { propietarioDoc: propietarioDoc ? String(propietarioDoc) : null } : {}),
+        ...(tipoInmueble !== undefined ? { tipoInmueble: tipoInmueble as TipoInmueble } : {}),
+        ...(tipo !== undefined ? { tipo: tipo as TipoOperacion } : {}),
+        ...(ciudad !== undefined ? { ciudad: String(ciudad) } : {}),
+        ...(zona !== undefined ? { zona: zona ? String(zona) : null } : {}),
+        ...(direccion !== undefined ? { direccion: direccion ? String(direccion) : null } : {}),
+        ...(descripcion !== undefined ? { descripcion: descripcion ? String(descripcion) : null } : {}),
+        ...(dormitorios !== undefined ? { dormitorios: dormitorios ? Number(dormitorios) : null } : {}),
+        ...(banos !== undefined ? { banos: banos ? Number(banos) : null } : {}),
+        ...(superficieM2 !== undefined ? { superficieM2: superficieM2 ? Number(superficieM2) : null } : {}),
+        ...(garage !== undefined ? { garage: boolFromBody(garage) } : {}),
+        ...(amueblado !== undefined ? { amueblado: boolFromBody(amueblado) } : {}),
+        ...(piscina !== undefined ? { piscina: boolFromBody(piscina) } : {}),
+        ...(precioSolicitado !== undefined ? { precioSolicitado: Number(precioSolicitado) } : {}),
+        ...(precioSugerido !== undefined ? { precioSugerido: precioSugerido ? Number(precioSugerido) : null } : {}),
+        ...(moneda !== undefined ? { moneda: String(moneda) } : {}),
+        ...(comisionPct !== undefined ? { comisionPct: comisionPct ? Number(comisionPct) : null } : {}),
+        ...(contratoUrl !== undefined ? { contratoUrl: contratoUrl ? String(contratoUrl) : null } : {}),
+        ...(exclusividadInicio !== undefined ? { exclusividadInicio: exclusividadInicio ? new Date(exclusividadInicio as string) : null } : {}),
+        ...(exclusividadFin !== undefined ? { exclusividadFin: exclusividadFin ? new Date(exclusividadFin as string) : null } : {}),
+      },
     })
     res.json(captacion)
   } catch (err) { next(err) }
@@ -147,33 +279,10 @@ adminCaptacionesRouter.patch('/:id/estado', async (req, res, next) => {
     const captacion = await prisma.captacion.findUnique({ where: { id: req.params.id } })
     if (!captacion) { res.status(404).json({ error: 'Not Found', message: 'Captacion no encontrada', statusCode: 404 }); return }
 
-    // Auto-create Propiedad when advancing to CAPTADA
-    if (estado === 'CAPTADA' && !captacion.propiedadId) {
-      const slug = `${captacion.ciudad}-${captacion.tipoInmueble}-${Date.now()}`
-        .toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-
-      const propiedad = await prisma.propiedad.create({
-        data: {
-          slug,
-          titulo: `${captacion.tipoInmueble} en ${captacion.ciudad}${captacion.zona ? ` - ${captacion.zona}` : ''}`,
-          descripcion: captacion.descripcion ?? '',
-          tipo: captacion.tipo,
-          tipoInmueble: captacion.tipoInmueble,
-          precio: captacion.precioSugerido ?? captacion.precioSolicitado,
-          moneda: captacion.moneda,
-          ciudad: captacion.ciudad,
-          zona: captacion.zona,
-          direccion: captacion.direccion,
-          dormitorios: captacion.dormitorios,
-          banos: captacion.banos,
-          superficieM2: captacion.superficieM2,
-          garage: captacion.garage,
-          amueblado: captacion.amueblado,
-          piscina: captacion.piscina,
-          agenteId: captacion.agenteId,
-          activa: false, // requires explicit activation
-        },
-      })
+    // Auto-create Propiedad when advancing to CAPTADA or PUBLICADA.
+    // PUBLICADA also turns on public web visibility.
+    if (['CAPTADA', 'PUBLICADA'].includes(estado) && !captacion.propiedadId) {
+      const propiedad = await createPropertyFromCaptacion(captacion, estado === 'PUBLICADA')
 
       await prisma.captacion.update({
         where: { id: req.params.id },
@@ -182,6 +291,10 @@ adminCaptacionesRouter.patch('/:id/estado', async (req, res, next) => {
 
       res.json({ captacion: { ...captacion, estado, propiedadId: propiedad.id }, propiedadCreada: propiedad })
       return
+    }
+
+    if (estado === 'PUBLICADA' && captacion.propiedadId) {
+      await prisma.propiedad.update({ where: { id: captacion.propiedadId }, data: { activa: true } })
     }
 
     const updated = await prisma.captacion.update({ where: { id: req.params.id }, data: { estado } })

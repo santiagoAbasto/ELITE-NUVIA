@@ -24,7 +24,8 @@ function diasParaVencer(fecha: string): number {
 }
 
 function Avatar({ agente }: { agente: AgenteItem }) {
-  const initials = `${agente.nombre[0]}${(agente.primerApellido ?? agente.apellido)[0]}`.toUpperCase()
+  const apellido = agente.primerApellido || agente.apellido || ''
+  const initials = `${agente.nombre[0] ?? ''}${apellido[0] ?? ''}`.toUpperCase()
   if (agente.foto) return <img src={agente.foto} alt="" className="h-10 w-10 rounded-2xl object-cover ring-1 ring-gold/20" />
   return (
     <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gold/[0.12] ring-1 ring-gold/[0.22]">

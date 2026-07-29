@@ -3,6 +3,20 @@ export type TipoInmueble = 'CASA' | 'DEPARTAMENTO' | 'GARZONIER' | 'TERRENO' | '
 export type Rol = 'SUPER_ADMIN' | 'AGENTE' | 'COORDINADOR'
 export type LeadEstado = 'NUEVO' | 'EN_CONTACTO' | 'INTERESADO' | 'NEGOCIACION' | 'CERRADO' | 'PERDIDO'
 
+// Admin modules that can be granted/revoked per COORDINADOR user. SUPER_ADMIN
+// always has every module; AGENTE has its own fixed, scoped access.
+export const ADMIN_MODULES = ['cms', 'propiedades', 'captaciones', 'leads', 'agenda', 'reportes'] as const
+export type AdminModulo = typeof ADMIN_MODULES[number]
+
+export const ADMIN_MODULE_LABELS: Record<AdminModulo, string> = {
+  cms: 'Contenido del sitio (CMS)',
+  propiedades: 'Propiedades',
+  captaciones: 'Captaciones',
+  leads: 'Leads',
+  agenda: 'Agenda',
+  reportes: 'Reportes',
+}
+
 export interface Foto {
   id: string
   url: string
@@ -97,6 +111,7 @@ export interface AuthPayload {
   userId: string
   rol: Rol
   nombre: string
+  permisos: AdminModulo[]
 }
 
 // CRM types

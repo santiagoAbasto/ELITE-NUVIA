@@ -4,6 +4,7 @@ import { useAdminAuth } from '../context/AdminAuthContext'
 import { adminApi } from '../shared/adminApi'
 
 interface PropiedadesCount { venta: number; alquiler: number; anticretico: number; total: number }
+interface ReportResumen { propiedades: { activas: number; venta: number; alquiler: number; anticretico: number } }
 interface Lead { id: string; nombre: string; estado: string; temperatura: string; updatedAt: string; agente?: { nombre: string; apellido: string } }
 interface Captacion { id: string; propietarioNombre: string; estado: string; ciudad: string; tipo: string; updatedAt: string }
 interface Evento { id: string; titulo: string; tipo: string; inicio: string }
@@ -121,21 +122,32 @@ export default function DashboardPage() {
     const now = new Date()
     const hasta = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
 
-    Promise.all([
-      adminApi.get<PropiedadesCount>('/propiedades/count'),
-      adminApi.get<{ data: Lead[] }>('/admin/leads?pageSize=10'),
-      adminApi.get<{ data: Captacion[] }>('/admin/captaciones?pageSize=10'),
-      adminApi.get<Evento[]>(`/admin/eventos?desde=${now.toISOString()}&hasta=${hasta.toISOString()}`),
+    // A Coordinador may only have some modulos assigned — each fetch is
+    // independent so a missing permiso on one card doesn't blank the rest.
+    const canSee = (modulo: 'reportes' | 'leads' | 'captaciones' | 'agenda') =>
+      user?.rol !== 'COORDINADOR' || user.permisos.includes(modulo)
+
+    Promise.allSettled([
+      canSee('reportes') ? adminApi.get<ReportResumen>('/admin/reportes/resumen') : Promise.reject(new Error('sin permiso')),
+      canSee('leads') ? adminApi.get<{ data: Lead[] }>('/admin/leads?pageSize=10') : Promise.reject(new Error('sin permiso')),
+      canSee('captaciones') ? adminApi.get<{ data: Captacion[] }>('/admin/captaciones?pageSize=10') : Promise.reject(new Error('sin permiso')),
+      canSee('agenda') ? adminApi.get<Evento[]>(`/admin/eventos?desde=${now.toISOString()}&hasta=${hasta.toISOString()}`) : Promise.reject(new Error('sin permiso')),
     ])
-      .then(([count, leadsRes, capRes, eventosRes]) => {
-        setPropCount(count)
-        setLeads(leadsRes.data)
-        setCaptaciones(capRes.data)
-        setEventos(eventosRes.slice(0, 6))
+      .then(([reportRes, leadsRes, capRes, eventosRes]) => {
+        if (reportRes.status === 'fulfilled') {
+          setPropCount({
+            venta: reportRes.value.propiedades.venta,
+            alquiler: reportRes.value.propiedades.alquiler,
+            anticretico: reportRes.value.propiedades.anticretico,
+            total: reportRes.value.propiedades.activas,
+          })
+        }
+        if (leadsRes.status === 'fulfilled') setLeads(leadsRes.value.data)
+        if (capRes.status === 'fulfilled') setCaptaciones(capRes.value.data)
+        if (eventosRes.status === 'fulfilled') setEventos(eventosRes.value.slice(0, 6))
       })
-      .catch(() => { /* silent */ })
       .finally(() => setLoading(false))
-  }, [])
+  }, [user])
 
   const activeLeads = useMemo(() => leads.filter(l => !['CERRADO', 'PERDIDO'].includes(l.estado)).length, [leads])
   const hotLeads = useMemo(() => leads.filter(l => l.temperatura === 'CALIENTE').length, [leads])

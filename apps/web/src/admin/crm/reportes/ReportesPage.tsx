@@ -4,6 +4,7 @@ import {
   LineChart, Line, CartesianGrid, PieChart, Pie, Legend,
   RadialBarChart, RadialBar,
 } from 'recharts'
+import toast from 'react-hot-toast'
 import { adminApi } from '../../shared/adminApi'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -90,6 +91,7 @@ export default function ReportesPage() {
   const [propsPorCiudad, setPropsPorCiudad] = useState<CiudadItem[]>([])
   const [leadsPorTemp, setLeadsPorTemp] = useState<TempItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -140,20 +142,50 @@ export default function ReportesPage() {
     label: 'vs mes anterior',
   } : null
 
+  const exportPdf = async () => {
+    setExporting(true)
+    toast.loading('Preparando PDF...', { id: 'report-pdf' })
+    try {
+      const res = await fetch('/api/v1/admin/reportes/export/pdf', { credentials: 'include' })
+      if (!res.ok) throw new Error('No se pudo exportar el reporte')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'elite-nuvia-reporte-crm.pdf'
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('Reporte PDF descargado', { id: 'report-pdf' })
+    } catch {
+      toast.error('No se pudo exportar el reporte', { id: 'report-pdf' })
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-[1520px] space-y-8">
 
       {/* Header */}
-      <div>
-        <span className="rounded-full border border-gold/[0.18] bg-gold/[0.08] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-gold">
-          Inteligencia comercial
-        </span>
-        <h1 className="mt-3 text-[32px] font-black leading-[1.04] tracking-[-0.04em] text-white">
-          Reportes
-        </h1>
-        <p className="mt-1 text-[13px] text-white/[0.42]">
-          Métricas en tiempo real del negocio
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <span className="rounded-full border border-gold/[0.18] bg-gold/[0.08] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-gold">
+            Inteligencia comercial
+          </span>
+          <h1 className="mt-3 text-[32px] font-black leading-[1.04] tracking-[-0.04em] text-white">
+            Reportes
+          </h1>
+          <p className="mt-1 text-[13px] text-white/[0.42]">
+            Metricas en tiempo real del negocio. Si ingresas como asesor, los datos se limitan a tu cartera.
+          </p>
+        </div>
+        <button
+          onClick={exportPdf}
+          disabled={exporting}
+          className="rounded-2xl bg-gold px-4 py-3 text-[13px] font-black text-green-deep transition-colors hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-55"
+        >
+          {exporting ? 'Exportando...' : 'Exportar PDF'}
+        </button>
       </div>
 
       {/* KPI strip */}

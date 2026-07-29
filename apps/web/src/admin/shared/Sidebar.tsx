@@ -1,16 +1,28 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { useAdminAuth } from '../context/AdminAuthContext'
+import { useAdminAuth, type AdminModulo } from '../context/AdminAuthContext'
 
 type Rol = 'SUPER_ADMIN' | 'COORDINADOR' | 'AGENTE'
+type AdminUserLike = { rol: Rol; permisos: AdminModulo[] }
 
 interface NavItem {
   to: string
   label: string
   description: string
   icon: ReactNode
+  // Restricts to specific roles regardless of permisos (e.g. team/user management).
   roles?: Rol[]
+  // Gated by the user's assigned permisos when rol === COORDINADOR.
+  // SUPER_ADMIN and AGENTE always pass a modulo check.
+  modulo?: AdminModulo
+}
+
+function canSeeItem(user: AdminUserLike | null, item: NavItem): boolean {
+  if (!user) return false
+  if (item.roles && !item.roles.includes(user.rol)) return false
+  if (item.modulo && user.rol === 'COORDINADOR' && !user.permisos.includes(item.modulo)) return false
+  return true
 }
 
 const IconHome = () => (
@@ -106,12 +118,13 @@ const cmsLinks: NavItem[] = [
 
 const crmLinks: NavItem[] = [
   { to: '/admin/dashboard', label: 'Dashboard', description: 'Actividad y operación', icon: <IconLayout /> },
-  { to: '/admin/propiedades', label: 'Propiedades', description: 'Inventario y permisos', icon: <IconBuilding /> },
-  { to: '/admin/captaciones', label: 'Captaciones', description: 'Prospectos a publicación', icon: <IconBriefcase /> },
-  { to: '/admin/leads', label: 'Leads', description: 'Pipeline comercial', icon: <IconMessage /> },
-  { to: '/admin/agenda', label: 'Agenda', description: 'Visitas, llamadas y cierres', icon: <IconCalendar /> },
-  { to: '/admin/agentes', label: 'Agentes', description: 'Equipo y contratos', icon: <IconUsers />, roles: ['SUPER_ADMIN', 'COORDINADOR'] },
-  { to: '/admin/reportes', label: 'Reportes', description: 'Métricas por zona y agente', icon: <IconChart /> },
+  { to: '/admin/propiedades', label: 'Propiedades', description: 'Inventario y permisos', icon: <IconBuilding />, modulo: 'propiedades' },
+  { to: '/admin/captaciones', label: 'Captaciones', description: 'Prospectos a publicación', icon: <IconBriefcase />, modulo: 'captaciones' },
+  { to: '/admin/leads', label: 'Leads', description: 'Pipeline comercial', icon: <IconMessage />, modulo: 'leads' },
+  { to: '/admin/agenda', label: 'Agenda', description: 'Visitas, llamadas y cierres', icon: <IconCalendar />, modulo: 'agenda' },
+  { to: '/admin/agentes', label: 'Agentes', description: 'Equipo y contratos', icon: <IconUsers />, roles: ['SUPER_ADMIN'] },
+  { to: '/admin/reportes', label: 'Reportes', description: 'Métricas por zona y agente', icon: <IconChart />, modulo: 'reportes' },
+  { to: '/admin/usuarios', label: 'Usuarios', description: 'Cuentas admin y permisos', icon: <IconUsers />, roles: ['SUPER_ADMIN'] },
 ]
 
 const rolLabel: Record<Rol, string> = {
@@ -167,11 +180,12 @@ export default function Sidebar() {
   const { user } = useAdminAuth()
   const [collapsed, setCollapsed] = useState(false)
   const rol = user?.rol as Rol | undefined
-  const visibleCrm = crmLinks.filter(l => !l.roles || (rol && l.roles.includes(rol)))
+  const visibleCrm = crmLinks.filter(l => canSeeItem(user, l))
+  const canSeeCms = rol === 'SUPER_ADMIN' || (rol === 'COORDINADOR' && !!user?.permisos.includes('cms'))
 
   return (
     <aside
-      className={`${collapsed ? 'w-[76px]' : 'w-[292px]'} relative flex-shrink-0 border-r border-gold/[0.12] bg-[#07100b]/[0.92] shadow-[24px_0_90px_rgba(0,0,0,0.28)] transition-[width] duration-200`}
+      className={`${collapsed ? 'w-[76px]' : 'w-[292px]'} relative h-full min-h-0 flex-shrink-0 border-r border-gold/[0.12] bg-[#07100b]/[0.92] shadow-[24px_0_90px_rgba(0,0,0,0.28)] transition-[width] duration-200`}
     >
       <div className="absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-gold/[0.28] to-transparent" />
       <div className="flex h-full flex-col">
@@ -209,7 +223,7 @@ export default function Sidebar() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-2 py-3">
-          {rol === 'SUPER_ADMIN' && (
+          {canSeeCms && (
             <div>
               <SectionTitle collapsed={collapsed}>Sitio web</SectionTitle>
               <nav className="space-y-1">

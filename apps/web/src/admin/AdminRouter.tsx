@@ -8,6 +8,7 @@ const DashboardPage     = lazy(() => import('./dashboard/DashboardPage'))
 const CmsShell          = lazy(() => import('./cms/CmsShell'))
 const PropiedadesPage   = lazy(() => import('./crm/propiedades/PropiedadesPage'))
 const PropiedadDetail   = lazy(() => import('./crm/propiedades/PropiedadDetail'))
+const PropiedadForm     = lazy(() => import('./crm/propiedades/PropiedadForm'))
 const AgentesPage       = lazy(() => import('./crm/agentes/AgentesPage'))
 const AgenteDetail      = lazy(() => import('./crm/agentes/AgenteDetail'))
 const AgenteForm        = lazy(() => import('./crm/agentes/AgenteForm'))
@@ -15,8 +16,10 @@ const LeadsKanban       = lazy(() => import('./crm/leads/LeadsKanban'))
 const LeadDetail        = lazy(() => import('./crm/leads/LeadDetail'))
 const CaptacionesPage   = lazy(() => import('./crm/captaciones/CaptacionesPage'))
 const CaptacionDetail   = lazy(() => import('./crm/captaciones/CaptacionDetail'))
+const CaptacionForm     = lazy(() => import('./crm/captaciones/CaptacionForm'))
 const AgendaPage        = lazy(() => import('./crm/agenda/AgendaPage'))
 const ReportesPage      = lazy(() => import('./crm/reportes/ReportesPage'))
+const UsuariosPage      = lazy(() => import('./crm/usuarios/UsuariosPage'))
 
 function Spinner() {
   return (
@@ -30,6 +33,22 @@ function Guard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAdminAuth()
   if (loading) return <div className="min-h-screen bg-[#07100b]" />
   if (!user) return <Navigate to="/admin/login" replace />
+  return <>{children}</>
+}
+
+function SuperAdminGuard({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAdminAuth()
+  if (loading) return <div className="min-h-screen bg-[#07100b]" />
+  if (!user) return <Navigate to="/admin/login" replace />
+  if (user.rol !== 'SUPER_ADMIN') return <Navigate to="/admin/dashboard" replace />
+  return <>{children}</>
+}
+
+function ModuloGuard({ modulo, children }: { modulo: 'cms' | 'propiedades' | 'captaciones' | 'leads' | 'agenda' | 'reportes'; children: React.ReactNode }) {
+  const { user, loading } = useAdminAuth()
+  if (loading) return <div className="min-h-screen bg-[#07100b]" />
+  if (!user) return <Navigate to="/admin/login" replace />
+  if (user.rol === 'COORDINADOR' && !user.permisos.includes(modulo)) return <Navigate to="/admin/dashboard" replace />
   return <>{children}</>
 }
 
@@ -56,31 +75,36 @@ function AdminRoutes() {
 
         {/* CMS */}
         <Route path="cms" element={<Navigate to="/admin/cms/home" replace />} />
-        <Route path="cms/:seccion" element={<S><CmsShell /></S>} />
+        <Route path="cms/:seccion" element={<ModuloGuard modulo="cms"><S><CmsShell /></S></ModuloGuard>} />
 
         {/* Propiedades */}
-        <Route path="propiedades" element={<S><PropiedadesPage /></S>} />
-        <Route path="propiedades/:id" element={<S><PropiedadDetail /></S>} />
+        <Route path="propiedades" element={<ModuloGuard modulo="propiedades"><S><PropiedadesPage /></S></ModuloGuard>} />
+        <Route path="propiedades/nueva" element={<ModuloGuard modulo="propiedades"><S><PropiedadForm /></S></ModuloGuard>} />
+        <Route path="propiedades/:id" element={<ModuloGuard modulo="propiedades"><S><PropiedadDetail /></S></ModuloGuard>} />
 
-        {/* Agentes */}
-        <Route path="agentes" element={<S><AgentesPage /></S>} />
-        <Route path="agentes/nuevo" element={<S><AgenteForm /></S>} />
-        <Route path="agentes/:id" element={<S><AgenteDetail /></S>} />
-        <Route path="agentes/:id/editar" element={<S><AgenteForm /></S>} />
+        {/* Agentes (equipo interno) — solo Super Admin */}
+        <Route path="agentes" element={<SuperAdminGuard><S><AgentesPage /></S></SuperAdminGuard>} />
+        <Route path="agentes/nuevo" element={<SuperAdminGuard><S><AgenteForm /></S></SuperAdminGuard>} />
+        <Route path="agentes/:id" element={<SuperAdminGuard><S><AgenteDetail /></S></SuperAdminGuard>} />
+        <Route path="agentes/:id/editar" element={<SuperAdminGuard><S><AgenteForm /></S></SuperAdminGuard>} />
+
+        {/* Usuarios administrativos — solo Super Admin */}
+        <Route path="usuarios" element={<SuperAdminGuard><S><UsuariosPage /></S></SuperAdminGuard>} />
 
         {/* Leads */}
-        <Route path="leads" element={<S><LeadsKanban /></S>} />
-        <Route path="leads/:id" element={<S><LeadDetail /></S>} />
+        <Route path="leads" element={<ModuloGuard modulo="leads"><S><LeadsKanban /></S></ModuloGuard>} />
+        <Route path="leads/:id" element={<ModuloGuard modulo="leads"><S><LeadDetail /></S></ModuloGuard>} />
 
         {/* Captaciones */}
-        <Route path="captaciones" element={<S><CaptacionesPage /></S>} />
-        <Route path="captaciones/:id" element={<S><CaptacionDetail /></S>} />
+        <Route path="captaciones" element={<ModuloGuard modulo="captaciones"><S><CaptacionesPage /></S></ModuloGuard>} />
+        <Route path="captaciones/nueva" element={<ModuloGuard modulo="captaciones"><S><CaptacionForm /></S></ModuloGuard>} />
+        <Route path="captaciones/:id" element={<ModuloGuard modulo="captaciones"><S><CaptacionDetail /></S></ModuloGuard>} />
 
         {/* Agenda */}
-        <Route path="agenda" element={<S><AgendaPage /></S>} />
+        <Route path="agenda" element={<ModuloGuard modulo="agenda"><S><AgendaPage /></S></ModuloGuard>} />
 
         {/* Reportes */}
-        <Route path="reportes" element={<S><ReportesPage /></S>} />
+        <Route path="reportes" element={<ModuloGuard modulo="reportes"><S><ReportesPage /></S></ModuloGuard>} />
 
         <Route path="*" element={<Placeholder />} />
       </Route>
