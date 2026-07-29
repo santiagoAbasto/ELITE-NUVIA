@@ -5,7 +5,7 @@ import fs from 'fs'
 import { createApp } from './app.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const ROOT = path.resolve(__dirname, '../../../..')
+const ROOT = path.resolve(__dirname, '../../..')
 
 const PORT = Number(process.env.PORT ?? 8080)
 const app = createApp()
